@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "organizae-mobile",
-    "slug": "organizae-mobile",
+    "name": "organizae",
+    "slug": "organizae",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

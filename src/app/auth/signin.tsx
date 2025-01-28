@@ -7,6 +7,9 @@ import {
 } from "react-native";
 import * as Font from "expo-font";
 import { useEffect } from "react";
+import { navigate } from "expo-router/build/global-state/routing";
+import SignUp from "./signup";
+import { router } from "expo-router";
 
 export default function Signin() {
   const loadFont = async () => {
@@ -51,7 +54,6 @@ export default function Signin() {
               <TextInput
                 style={styles.UserMailInput}
                 onChangeText={() => {}}
-                placeholder="Senha"
                 keyboardType="default"
               />
             </View>
@@ -61,7 +63,9 @@ export default function Signin() {
           <View style={styles.BottomArea}>
             <View style={styles.BottomAreaLeft}>
               <Text>Novo no Organizaê?</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={
+                () => router.push('/auth/signup')
+              }>
                 <Text style={styles.SignUpText}>Cadastre-se aqui</Text>
               </TouchableOpacity>
             </View>

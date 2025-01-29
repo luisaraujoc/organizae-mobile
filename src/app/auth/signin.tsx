@@ -1,20 +1,15 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import * as Font from "expo-font";
 import { useEffect } from "react";
 import { navigate } from "expo-router/build/global-state/routing";
 import SignUp from "./signup";
 import { router } from "expo-router";
 import Textinput from "@/components/Textinput";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Signin() {
   const loadFont = async () => {
     await Font.loadAsync({
-      InterRegular: require('@/assets/fonts/Inter_18pt-Regular.ttf'),
       MontserratLight: require("@/assets/fonts/Montserrat-Light.ttf"),
       MontserratRegular: require("@/assets/fonts/Montserrat-Regular.ttf"),
       MontserratMedium: require("@/assets/fonts/Montserrat-Medium.ttf"),
@@ -32,129 +27,112 @@ export default function Signin() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.backWall}>
-        <View style={styles.bottomLogInArea}>
-          <Text style={styles.Title}>
-            Entre na sua conta{" "}
-            <Text style={styles.highlightedText}>Organizaê</Text>
-          </Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.BottomArea}>
+        <Text style={styles.Title}>
+          Entre na sua conta{"\n"}
+          <Text style={styles.highlightedText}>Organizaê</Text>
+        </Text>
 
-          {/* InputAreas */}
-          <View style={styles.InputArea}>
-            <View style={styles.MailArea}>
-              <Text style={[styles.defaultText]}>Email ou Nome de Usuário</Text>
-              <Textinput
-                onChangeText={() => {}}
-                keyboardType="default"
-              />
-            </View>
-            <View style={styles.PassArea}>
-              <Text style={[styles.defaultText]}>Senha</Text>
-              <Textinput
-                onChangeText={() => {}}
-                keyboardType="default"
-              />
-            </View>
+        {/* InputAreas */}
+        <View style={styles.InputArea}>
+          <View style={styles.InputBox}>
+            <Text style={[styles.defaultText]}>Email ou Nome de Usuário</Text>
+            <Textinput onChangeText={() => {}} keyboardType="default" />
           </View>
+          <View style={styles.InputBox}>
+            <Text style={[styles.defaultText]}>Senha</Text>
+            <Textinput onChangeText={() => {}} keyboardType="default" />
+          </View>
+        </View>
 
-          {/* SignUp Button e LogIn Button */}
-          <View style={styles.BottomArea}>
-            <View style={styles.BottomAreaLeft}>
-              <Text style={[styles.defaultText]}>Novo no Organizaê?</Text>
-              <TouchableOpacity onPress={
-                () => router.push('/auth/signup')
-              }>
-                <Text style={styles.SignUpText}>Cadastre-se aqui</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.BottomAreaRight}>
-              <TouchableOpacity style={styles.SignInButton}>
-                <Text style={styles.SignInText}>Entrar</Text>
-              </TouchableOpacity>
-            </View>
+        {/* SignUp Button e LogIn Button */}
+        <View style={styles.ButtonArea}>
+          <View style={styles.ButtonAreaLeft}>
+            <Text style={[styles.defaultText]}>Novo no Organizaê?</Text>
+            <TouchableOpacity onPress={() => router.push("/auth/signup")}>
+              <Text style={styles.SignUpText}>Cadastre-se aqui</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.ButtonAreaRight}>
+            <TouchableOpacity style={styles.SignInButton}>
+              <Text style={styles.SignInText}>Entrar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    height: "100%",
-  },
-  defaultText: {
-    fontFamily: "InterRegular",
-    fontSize: 12,
-  },
-  backWall: {
-    width: "100%",
-    height: "100%",
+    flex: 1,
     backgroundColor: "#01A1C5",
     display: "flex",
     justifyContent: "flex-end",
-    // alignContent: 'flex-end'
   },
-  bottomLogInArea: {
+  defaultText: {
+    fontFamily: "MontserratRegular",
+    fontSize: 14,
+    color: '#808080',
+  },
+  BottomArea: {
     backgroundColor: "#fff",
-    height: "60%",
-    borderTopStartRadius: 20,
     borderTopEndRadius: 20,
-    paddingTop: 24,
+    borderTopStartRadius: 20,
     paddingHorizontal: 16,
+    paddingVertical: 24,
   },
-  Title: {
+  Title:{
     fontFamily: "MontserratBold",
-    fontSize: 24,
+    fontSize: 28,
   },
   highlightedText: {
     color: "#01A1C5",
     fontFamily: "MontserratBold",
   },
   InputArea: {
-    marginVertical: 20,
-    marginHorizontal: 8,
+    padding: 4,
   },
-  MailArea: {
-    marginVertical: 18,
+  InputBox: {
+    paddingVertical: 12,
   },
-  PassArea: {
-    marginTop: 16,
-  },
-  UserMailInput: {
-    borderBottomWidth: 1,
-  },
-  BottomArea: {
-    marginVertical: 24,
+  ButtonArea: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: 'space-between'
+    justifyContent: "space-between",
+    padding: 4,
   },
-  BottomAreaLeft: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignContent: 'center'
+  ButtonAreaLeft: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
   },
-  BottomAreaRight: {},
+  ButtonAreaRight: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+  },
   SignUpText: {
-    marginVertical: 2,
-    fontSize: 16,
+    color: "#000",
     fontFamily: "MontserratBold",
+    fontSize: 16,
+    paddingVertical: 8,
   },
   SignInButton: {
-    backgroundColor: '#01A1C5',
-    padding: 16,
-    borderRadius: 100,
+    backgroundColor: "#01A1C5",
     width: 120,
     height: 120,
-    display: 'flex',
-    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 100,
+    display: "flex",
+    justifyContent: "center",
   },
   SignInText: {
-    fontFamily: 'MontserratSemiBold',
-    fontSize: 20,
-    color: '#fff',
-    textAlign: 'center'
+    color: "#fff",
+    fontFamily: "MontserratBold",
+    fontSize: 24,
+    textAlign: "center",
   },
 });

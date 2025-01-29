@@ -2,7 +2,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
 import * as Font from "expo-font";
@@ -10,10 +9,12 @@ import { useEffect } from "react";
 import { navigate } from "expo-router/build/global-state/routing";
 import SignUp from "./signup";
 import { router } from "expo-router";
+import Textinput from "@/components/Textinput";
 
 export default function Signin() {
   const loadFont = async () => {
     await Font.loadAsync({
+      InterRegular: require('@/assets/fonts/Inter_18pt-Regular.ttf'),
       MontserratLight: require("@/assets/fonts/Montserrat-Light.ttf"),
       MontserratRegular: require("@/assets/fonts/Montserrat-Regular.ttf"),
       MontserratMedium: require("@/assets/fonts/Montserrat-Medium.ttf"),
@@ -42,17 +43,15 @@ export default function Signin() {
           {/* InputAreas */}
           <View style={styles.InputArea}>
             <View style={styles.MailArea}>
-              <Text>Email ou Nome de Usuário</Text>
-              <TextInput
-                style={styles.UserMailInput}
+              <Text style={[styles.defaultText]}>Email ou Nome de Usuário</Text>
+              <Textinput
                 onChangeText={() => {}}
                 keyboardType="default"
               />
             </View>
             <View style={styles.PassArea}>
-              <Text>Senha</Text>
-              <TextInput
-                style={styles.UserMailInput}
+              <Text style={[styles.defaultText]}>Senha</Text>
+              <Textinput
                 onChangeText={() => {}}
                 keyboardType="default"
               />
@@ -62,7 +61,7 @@ export default function Signin() {
           {/* SignUp Button e LogIn Button */}
           <View style={styles.BottomArea}>
             <View style={styles.BottomAreaLeft}>
-              <Text>Novo no Organizaê?</Text>
+              <Text style={[styles.defaultText]}>Novo no Organizaê?</Text>
               <TouchableOpacity onPress={
                 () => router.push('/auth/signup')
               }>
@@ -84,6 +83,10 @@ export default function Signin() {
 const styles = StyleSheet.create({
   container: {
     height: "100%",
+  },
+  defaultText: {
+    fontFamily: "InterRegular",
+    fontSize: 12,
   },
   backWall: {
     width: "100%",

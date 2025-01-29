@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import Signin from "./auth/signin";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
+import SignUp from "./auth/signup";
 
 export default function Index() {
   const router = useRouter();

@@ -3,6 +3,7 @@ import Signin from "./auth/signin";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import SignUp from "./auth/signup";
+import GroupSelection from "./groupSelect/group";
 
 export default function Index() {
   const router = useRouter();
@@ -14,14 +15,14 @@ export default function Index() {
       if (isLoggedIn) {
         router.navigate("/tabs/home");
       } else {
-        return <Signin />;
+        return <GroupSelection />;
       }
     }, 1000);
 
     return () => clearTimeout(timeout);
   }, []);
 
-  return <Signin />;
+  return <GroupSelection />;
 }
 
 const styles = StyleSheet.create({

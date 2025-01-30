@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import * as Font from "expo-font";
 import { useEffect } from "react";
-import { navigate } from "expo-router/build/global-state/routing";
 import SignUp from "./signup";
 import { router } from "expo-router";
 import Textinput from "@/components/Textinput";

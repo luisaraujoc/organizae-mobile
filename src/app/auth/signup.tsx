@@ -57,7 +57,7 @@ export default function SignUp() {
         {/* SignUp Button e LogIn Button */}
         <View style={styles.ButtonArea}>
                   <View style={styles.ButtonAreaLeft}>
-                    <Text style={[styles.defaultText]}>Já tem uma conta no Organizaê?</Text>
+                    <Text style={[styles.defaultText]}>Já tem uma conta?</Text>
                     <TouchableOpacity onPress={() => router.back()}>
                       <Text style={styles.SignUpText}>Faça Login aqui</Text>
                     </TouchableOpacity>

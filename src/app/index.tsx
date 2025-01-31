@@ -1,28 +1,29 @@
-import { View, Text, StyleSheet } from "react-native";
-import Signin from "./auth/signin";
+import { View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import SignUp from "./auth/signup";
-import GroupSelection from "./groupSelect/group";
 
 export default function Index() {
   const router = useRouter();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const isLoggedIn = false;
+      const isLoggedIn = true; // Simule a verificação de login
 
       if (isLoggedIn) {
-        router.navigate("/tabs/home");
+        router.push("/groupSelect/group"); // Navega para a tela home se o usuário estiver logado
       } else {
-        return <GroupSelection />;
+        router.push("/auth/signin"); // Navega para a tela de seleção de grupo
       }
     }, 1000);
 
     return () => clearTimeout(timeout);
   }, []);
 
-  return <GroupSelection />;
+  return (
+    <View style={styles.container}>
+      {/* Você pode adicionar um carregando ou algo aqui se quiser */}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

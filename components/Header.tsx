@@ -39,27 +39,5 @@ const style = StyleSheet.create({
     }
 });
 
-function SearchHeader() {
-  const loadFont = async () => {
-      await Font.loadAsync({
-        MontserratSemiBold: require("@/assets/fonts/Montserrat-SemiBold.ttf"),
-      });
-    };
-  
-    useEffect(() => {
-      loadFont();
-    }, []);
-  
-    if (!Font.isLoaded) {
-      return null;
-    }
 
-  return (
-      <View style={style.container}>
-          <Text style={style.title}>Buscar</Text>
-      </View>
-  );
-}
-
-
-export { GroupHeader, SearchHeader };
+export { GroupHeader };

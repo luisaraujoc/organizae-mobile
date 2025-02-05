@@ -1,6 +1,5 @@
 import { Stack, Tabs } from "expo-router";
 import { Cards, CardsThree, House } from "phosphor-react-native";
-import {SearchHeader } from "@/components/Header";
 
 export default function TabsLayout() {
   return (
@@ -18,9 +17,6 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="home" options={{
         tabBarIcon: ({color}) => <House size={24} color={color} />,
-        headerShown: true,
-          header: () => <SearchHeader />
-          
       }}/>
     </Tabs>
   );

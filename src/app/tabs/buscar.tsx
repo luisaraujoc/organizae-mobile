@@ -99,17 +99,17 @@ export default function SearchScreen() {
     setShowEndPicker(false);
     if (selectedDate) {
       const currentDate = new Date();
-      // Se a data selecionada for maior que a data atual, define como a data atual
       const newEndDate = selectedDate > currentDate ? currentDate : selectedDate;
-
+  
       // Verifica se a nova data final é menor que a data inicial
       if (startDate && newEndDate < startDate) {
-        setStartDate(newEndDate); // Ajusta a data inicial para ser igual à nova data final
+        setEndDate(startDate); // Ajusta a data final para ser igual à data inicial
+      } else {
+        setEndDate(newEndDate);
       }
-
-      setEndDate(newEndDate);
     }
   };
+  
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -118,12 +118,6 @@ export default function SearchScreen() {
 
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <TouchableOpacity
-              onPress={() => console.log("Menu")}
-              style={styles.menu}
-            >
-              <List size={28} color="#01A1C5" />
-            </TouchableOpacity>
             <Text style={styles.headerTitle}>Buscar</Text>
           </View>
           <View style={styles.headerRight}>
@@ -137,7 +131,7 @@ export default function SearchScreen() {
           <View style={styles.searchWrapper}>
             <View style={styles.searchContainer}>
               <TextInput
-                placeholder="Pesquisa"
+                placeholder="Pesquisar"
                 style={styles.searchInput}
                 placeholderTextColor="#B0B0B0"
                 value={searchText}
@@ -148,13 +142,14 @@ export default function SearchScreen() {
                 <MagnifyingGlass size={20} color="#606060" />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={styles.filterButton}
-              onPress={() => setModalVisible(true)}
-            >
+            <TouchableOpacity style={styles.filterButton} onPress={() => setModalVisible(true)}>
               <FunnelSimple size={20} color="#606060" />
             </TouchableOpacity>
           </View>
+            {/* area com resultado da pesquisa, ScrollView */}
+            <ScrollView style={styles.searchResults}>
+              <Text>Resultados da pesquisa</Text>
+            </ScrollView>
         </View>
 
         {/* Modal Code */}
@@ -257,7 +252,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 12,
+    padding: 8,
     backgroundColor: "#fff",
   },
   headerLeft: {
@@ -268,18 +263,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  menu: {
-    marginRight: 1,
-  },
   headerTitle: {
     fontFamily: "MontserratSemiBold",
     fontSize: 24,
     color: "#01A1C5",
+    marginLeft: 8,
   },
   body: {
     flex: 1,
-    paddingHorizontal: "3%",
-    paddingTop: "5%",
+    paddingHorizontal: "1%",
+    backgroundColor: "#fff",
   },
   searchWrapper: {
     flexDirection: "row",
@@ -299,6 +292,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333",
+  },
+  searchResults: {
+    flex: 1,
+    marginHorizontal: 4,
+    marginVertical: 8,
   },
   iconButton: {
     padding: "1%",

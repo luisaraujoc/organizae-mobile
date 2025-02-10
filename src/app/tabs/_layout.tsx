@@ -1,5 +1,5 @@
 import { Stack, Tabs } from "expo-router";
-import { Cards, CardsThree, House } from "phosphor-react-native";
+import { House, MagnifyingGlass } from "phosphor-react-native";
 
 export default function TabsLayout() {
   return (
@@ -16,8 +16,14 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="home" options={{
-        tabBarIcon: ({color}) => <House size={24} color={color} />,
+        tabBarIcon: ({color, size}) => <House size={size} color={color} />,
+        tabBarLabel: "Inicio",
       }}/>
+      <Tabs.Screen name="buscar" options={{
+        tabBarIcon: ({color, size}) => <MagnifyingGlass size={size} color={color} />,
+        tabBarLabel: "Buscar",
+      }}/>
+
     </Tabs>
   );
 }

@@ -10,9 +10,8 @@ export default function CreateSpaceScreen() {
   const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
-    // Verifica se ambos os campos foram preenchidos
     setIsFormValid(name.trim() !== "" && description.trim() !== "");
-  }, [name, description]); // Reexecuta sempre que "name" ou "description" mudar
+  }, [name, description]); 
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -56,7 +55,6 @@ export default function CreateSpaceScreen() {
         textAlignVertical="top"
       />
 
-      {/* Mensagem de alerta quando o formulário não estiver válido */}
       {!isFormValid && (
         <Text style={styles.alertText}>Todos os campos devem ser preenchidos!</Text>
       )}
@@ -130,20 +128,27 @@ const styles = StyleSheet.create({
   },
 
   cardContainer: {
-    backgroundColor: "#000",
-    borderRadius: 12,
-    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    overflow: "hidden",
     alignItems: "center",
     marginVertical: 20,
     position: "relative",
+    shadowColor: '#000',          
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,            
+    shadowRadius: 3,               
+    elevation: 5,                  
+    
   },
 
   cardHeader: {
     width: "100%",
     height: 80,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
     backgroundColor: "#1A1A1A",
+    borderBottomWidth: 2,
+    
+   
   },
 
   cardAvatarContainer: {
@@ -165,14 +170,15 @@ const styles = StyleSheet.create({
   },
 
   cardTitle: {
-    color: "#fff",
+    color: "#000",
     fontWeight: "bold",
     marginTop: 30,
   },
 
   cardDescription: {
-    color: "#ccc",
+    color: "#666",
     fontSize: 12,
+    paddingBottom: "7%",
   },
 
   buttonContainer: {

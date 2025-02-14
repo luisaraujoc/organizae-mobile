@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 export default function CreateSpaceScreen() {
   const [name, setName] = useState("");
@@ -73,7 +74,7 @@ export default function CreateSpaceScreen() {
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={[styles.button, styles.cancelButton]} activeOpacity={0.7}>
+        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => router.back()} activeOpacity={0.7}>
           <Text style={styles.buttonText}>Cancelar</Text>
         </TouchableOpacity>
         <TouchableOpacity

@@ -48,7 +48,7 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({ userType }) => {
   };
 
   const handleCreateSpace = () => {
-    router.navigate("/grupos/grupo/stack/criarEspaco");
+    router.navigate("/grupos/_subTelas/criarEspaco");
 
     isOpen && setIsOpen(false);
   };

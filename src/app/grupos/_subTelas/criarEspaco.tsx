@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 
 export default function CreateSpaceScreen() {
   const [name, setName] = useState("");
@@ -98,7 +97,7 @@ export default function CreateSpaceScreen() {
           )}
 
           <View style={styles.cardContainer}>
-            <TouchableOpacity style={styles.cardHeader} onPress={() => pickImage('header')}>
+          <TouchableOpacity style={styles.cardHeader} onPress={() => pickImage('header')}>
                 {headerImage ? (
                     <Image source={{ uri: headerImage }} style={styles.cardHeaderImage} />
                 ) : (
@@ -117,9 +116,9 @@ export default function CreateSpaceScreen() {
               {image ? (
                 <Image source={{ uri: image }} style={styles.cardAvatar} />
               ) : (
-                <Ionicons name="person-outline" size={30} color="#777" />
+                <Ionicons name="add-circle" size={30} color="#777" />
               )}
-               <View style={styles.cardAvatarBorder} />
+              <View style={styles.cardAvatarBorder} />
             </TouchableOpacity>
             <Text style={styles.cardTitle}>{name || "Nome do espaço"}</Text>
             <Text style={styles.cardDescription}>
@@ -127,8 +126,6 @@ export default function CreateSpaceScreen() {
             </Text>
           </View>
         </View>
-      </ScrollView>
-
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.cancelButton]}
@@ -147,6 +144,7 @@ export default function CreateSpaceScreen() {
           <Text style={styles.buttonText}>Salvar</Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
     </View>
   );
 }
@@ -203,7 +201,7 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     width: "100%",
-    height: 121,
+    height: 120,
     borderBottomWidth: 2,
     borderColor: "#ddd",
     justifyContent: 'center',
@@ -234,18 +232,18 @@ const styles = StyleSheet.create({
     top: 90,
     overflow: "hidden",
   },
-    cardAvatarBorder: { //Adiciona a borda
+    cardAvatarBorder: {
         position: 'absolute',
-        bottom: 0,
+        top: 0,
         left: 0,
         width: '100%',
         height: '50%',
-        borderBottomWidth: 2,
+        borderTopWidth: 2,
         borderLeftWidth: 2,
         borderRightWidth: 2,
         borderColor: "#ddd",
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
         boxSizing: 'border-box'
     },
   cardAvatar: {
@@ -281,13 +279,9 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    height: 30,
     padding: 5,
     alignItems: "center",
-    borderRadius: 15,
-    marginTop: "5%",
-    marginBottom: "5%",
-    margin: "15%",
+    borderRadius: 30,
     marginHorizontal: 5,
   },
   cancelButton: {

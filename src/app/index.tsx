@@ -10,7 +10,7 @@ export default function Index() {
       const isLoggedIn = true; // Simule a verificação de login
 
       if (isLoggedIn) {
-        router.push("/tabs/criarespaco"); // Navega para a tela home se o usuário estiver logado
+        router.push("/grupo/group"); // Navega para a tela home se o usuário estiver logado
       } else {
         router.push("/auth/signin"); // Navega para a tela de seleção de grupo
       }

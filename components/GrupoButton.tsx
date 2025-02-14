@@ -1,19 +1,26 @@
-import { TouchableOpacity, StyleSheet, View, Text, Image } from "react-native";
-import { ReactNode } from "react";
+import {
+  TouchableOpacity,
+  TouchableOpacityProps,
+  StyleSheet,
+  View,
+  Text,
+} from "react-native";
 
 interface GrupoButtonProps {
-  children: string; // Nome do grupo
-  hasPhoto?: boolean; // Indica se há uma foto
-  photoUrl?: string; // URL da foto
+  nomeGrupo: string; // Nome do grupo
+  onPress: () => void; // Ensure onPress is defined
 }
 
-export default function GrupoButton({ children, hasPhoto = false, photoUrl }: GrupoButtonProps) {
+export default function GrupoButton({
+  nomeGrupo,
+  onPress
+}: TouchableOpacityProps & GrupoButtonProps) {
   const getInitials = (name: string) => {
     const words = name.split(" ");
     if (words.length === 1) {
-      return words[0]; // Retorna a palavra completa se houver apenas uma
+      return words[0]; // Return the full word if there's only one
     }
-    return words.map(word => word.charAt(0).toUpperCase()).join(""); // Retorna as iniciais
+    return words.map((word) => word.charAt(0).toUpperCase()).join(""); // Return initials
   };
 
   const getLimitedText = (text: string) => {
@@ -25,20 +32,11 @@ export default function GrupoButton({ children, hasPhoto = false, photoUrl }: Gr
   };
 
   return (
-    <TouchableOpacity
-      onPress={() => {
-        console.log("É CLICÁVEL");
-      }}
-      style={style.GroupSelectButton}
-    >
+    <TouchableOpacity style={style.GroupSelectButton} onPress={onPress}>
       <View style={style.circle}>
-        {hasPhoto && photoUrl ? (
-          <Image source={{ uri: photoUrl }} style={style.image} />
-        ) : (
-          <Text style={style.initials}>{getInitials(children)}</Text>
-        )}
+        <Text style={style.initials}>{getInitials(nomeGrupo)}</Text>
       </View>
-      <Text style={style.nomeGrupo}>{getLimitedText(children)}</Text>
+      <Text style={style.nomeGrupo}>{getLimitedText(nomeGrupo)}</Text>
     </TouchableOpacity>
   );
 }
@@ -52,8 +50,8 @@ const style = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "center",
-    width: '35%',
-    height: 'auto',
+    width: "35%",
+    height: "auto",
   },
   nomeGrupo: {
     fontSize: 14,
@@ -76,10 +74,5 @@ const style = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#000",
-  },
-  image: {
-    width: 80,
-    height: 80,
-    borderRadius: 40, // Para deixar a imagem circular
   },
 });

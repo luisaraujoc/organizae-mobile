@@ -2,13 +2,14 @@ import { StyleSheet, Text, View, SafeAreaView } from "react-native";
 import { GroupHeader } from "@/components/Header";
 import GrupoButton from "@/components/GrupoButton";
 import { router } from "expo-router";
+import FloatingGButton from "@/components/FloatingGButton";
+
 
 export default function Group() {
   return (
     <SafeAreaView style={style.container}>
       <GroupHeader />
-      <View style={style.bodySec}>
-        // In your Group component
+      <View style={style.body}>
         <GrupoButton
           nomeGrupo="Grupo 1"
           onPress={() => {
@@ -16,6 +17,9 @@ export default function Group() {
             router.push("/grupos/grupo/home");
           }}
         />
+      </View>
+      <View style={style.FloatButton}>
+        <FloatingGButton />
       </View>
     </SafeAreaView>
   );
@@ -26,12 +30,18 @@ const style = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  bodySec: {
+  body: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  FloatButton: {
+    position: "absolute",
+    width: "100%",
+    bottom: '2%',
+    right: '0.1%',
   },
 });

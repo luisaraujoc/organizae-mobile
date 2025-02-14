@@ -12,8 +12,8 @@ export default function Group() {
         <GrupoButton
           nomeGrupo="Grupo 1"
           onPress={() => {
-            console.log("Navigating to /grupo/espaco/home");
-            router.push("/grupos/espaco/home");
+            console.log("Navigating to /grupo/grupo/home");
+            router.push("/grupos/grupo/home");
           }}
         />
       </View>

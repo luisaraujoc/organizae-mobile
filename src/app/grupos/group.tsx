@@ -13,7 +13,7 @@ export default function Group() {
           nomeGrupo="Grupo 1"
           onPress={() => {
             console.log("Navigating to /grupo/espaco/home");
-            router.push("/grupos/grupo/home");
+            router.push("/grupos/espaco/home");
           }}
         />
       </View>

@@ -23,7 +23,6 @@ export default function TabsLayout() {
         tabBarIcon: ({color, size}) => <MagnifyingGlass size={size} color={color} />,
         tabBarLabel: "Buscar",
       }}/>
-
     </Tabs>
   );
 }

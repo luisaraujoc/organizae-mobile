@@ -5,15 +5,20 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
-  TouchableWithoutFeedback,
+  Animated,
+  Dimensions,
 } from "react-native";
 import { StatusBar, Platform } from "react-native";
-import { List, UserCircle, Warning } from "phosphor-react-native";
+import { List, UserCircle, X, PlusCircle } from "phosphor-react-native";
 import * as Font from "expo-font";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FloatingButton as FAB } from "@/components/FloatingButton";
+import { useRouter } from "expo-router"; // Import useRouter
 
 export default function Home() {
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(-Dimensions.get('window').width * 0.65)).current;
+  const router = useRouter(); // Initialize useRouter
 
   const loadFont = async () => {
     await Font.loadAsync({
@@ -29,15 +34,48 @@ export default function Home() {
     return null;
   }
 
+  const toggleSidebar = () => {
+    if (sidebarVisible) {
+      Animated.timing(slideAnim, {
+        toValue: -Dimensions.get('window').width * 0.65,
+        duration: 300,
+        useNativeDriver: false,
+      }).start(() => setSidebarVisible(false));
+    } else {
+      setSidebarVisible(true);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
+
+  const sidebarItems = [
+    "Diretoria Geral",
+    "DGTI",
+    "COGEP",
+    "CAENS",
+    "DEPAE",
+    "CORES",
+    "ADS",
+  ];
+
+  const handleCreateSpace = () => {
+    router.push("/grupos/_subTelas/criarEspaco"); // Navigate to criarEspaco
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle={"dark-content"} backgroundColor={"white"} />
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <TouchableOpacity
-            style={styles.menu}
-          >
-            <List size={28} color="#01A1C5" />
+          <TouchableOpacity style={styles.menu} onPress={toggleSidebar}>
+            {sidebarVisible ? (
+              <X size={28} color="#01A1C5" />
+            ) : (
+              <List size={28} color="#01A1C5" />
+            )}
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Organizaê</Text>
         </View>
@@ -54,6 +92,48 @@ export default function Home() {
       <View style={styles.FloatButton}>
         <FAB userType={"admin"} />
       </View>
+
+      {/* Sidebar (using Animated.View) */}
+      <Modal
+        transparent={true}
+        visible={sidebarVisible}
+        onRequestClose={toggleSidebar}
+        animationType="none"
+      >
+        <View style={styles.overlay}>
+          <TouchableOpacity
+            style={styles.touchableOverlay}
+            onPress={toggleSidebar}
+            activeOpacity={1}
+          >
+            <Animated.View
+              style={[
+                styles.sidebar,
+                {
+                  transform: [{ translateX: slideAnim }],
+                },
+              ]}
+            >
+              <ScrollView style={styles.scrollView}>
+                {sidebarItems.map((item, index) => (
+                  <View key={index} style={styles.sidebarItem}>
+                    <View style={styles.profileCircle} />
+                    <Text style={styles.itemText}>{item}</Text>
+                  </View>
+                ))}
+                <View style={styles.separator} />
+                <TouchableOpacity
+                  style={styles.createSpaceButton}
+                  onPress={handleCreateSpace} // Call handleCreateSpace on press
+                >
+                  <PlusCircle size={24} color="#01A1C5" />
+                  <Text style={styles.createSpaceText}>Criar novo Espaço</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </Animated.View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -61,6 +141,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
+    flex: 1,
   },
   header: {
     display: "flex",
@@ -86,38 +167,70 @@ const styles = StyleSheet.create({
   },
   body: {
     display: "flex",
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 8,
-    height: "100%",
   },
   menu: {
     marginRight: 12,
   },
-  FloatButton: {
+ FloatButton: {
     position: "absolute",
-    width: "100%",
     bottom: "5%",
-    right: "0.1%",
+    right: "2%",
   },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
   },
+  touchableOverlay: {
+    flex: 1,
+  },
   sidebar: {
+    position: "absolute",
     width: "65%",
     height: "100%",
     backgroundColor: "white",
-    paddingHorizontal: '2%',
-    paddingVertical: '4%',
+    top: 0,
+    left: 0,
+    zIndex: 10,
+  },
+  scrollView: {
+    paddingHorizontal: "5%",
+    paddingTop: "4%",
+    paddingBottom: "4%",
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
   },
-  closeButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: "#ddd",
+  sidebarItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  profileCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#ccc",
+    marginRight: 12,
+  },
+  itemText: {
+    fontSize: 16,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#ccc",
+    marginVertical: 20,
+  },
+  createSpaceButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  createSpaceText: {
+    marginLeft: 8,
+    color: "#01A1C5",
+    fontSize: 16,
   },
 });

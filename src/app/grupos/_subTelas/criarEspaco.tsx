@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function CreateSpaceScreen() {
@@ -12,6 +13,7 @@ export default function CreateSpaceScreen() {
   const [showAlert, setShowAlert] = useState(false);
   const [nameCharacterCount, setNameCharacterCount] = useState(0);
   const [descriptionCharacterCount, setDescriptionCharacterCount] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     setIsFormValid(name.trim() !== "" && description.trim() !== "");
@@ -130,6 +132,7 @@ export default function CreateSpaceScreen() {
         <TouchableOpacity
           style={[styles.button, styles.cancelButton]}
           activeOpacity={0.7}
+          onPress={() => router.push("/grupos/grupo/home")}
         >
           <Text style={styles.buttonText}>Cancelar</Text>
         </TouchableOpacity>

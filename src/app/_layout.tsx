@@ -7,6 +7,7 @@ export default function RootLayout() {
         headerShown: false,
         statusBarStyle: "light",
         statusBarBackgroundColor: "#01A1C5",
+        statusBarHidden: false,
       }}
     >
       <Stack.Screen name="index" />

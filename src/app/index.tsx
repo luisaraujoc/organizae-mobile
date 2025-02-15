@@ -36,10 +36,11 @@ const Stack = createNativeStackNavigator();
 export default function Index(){
   return(
     <AuthProvider>
-
+      <Layout />
     </AuthProvider>
   );
 }
+
 
 export const Layout = () => {
   const { authState, onLogout } = useAuth();
@@ -56,6 +57,7 @@ export const Layout = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
+
 };
 
 const styles = StyleSheet.create({

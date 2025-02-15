@@ -10,7 +10,7 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen name="criarEspaco" />
-      {/* <Stack.Screen name="criarPost" /> */}
+      <Stack.Screen name="criarPost" />
     </Stack>
   );
 }

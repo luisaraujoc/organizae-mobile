@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from "./grupos/grupo/home";
 import Signin from "./auth/signin";
 
-export default function Index() {
+/*export default function Index() {
   const router = useRouter();
 
   useEffect(() => {
@@ -29,9 +29,9 @@ export default function Index() {
       
     </View>
   );
-}
+}*/
 
-/*const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function Index(){
   return(
@@ -40,6 +40,7 @@ export default function Index(){
     </AuthProvider>
   );
 }
+
 
 export const Layout = () => {
   const { authState, onLogout } = useAuth();
@@ -56,7 +57,8 @@ export const Layout = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
-};*/
+
+};
 
 const styles = StyleSheet.create({
   container: {

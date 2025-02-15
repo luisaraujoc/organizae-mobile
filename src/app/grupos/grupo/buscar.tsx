@@ -8,14 +8,20 @@ import {
   StatusBar,
   Modal,
   ScrollView,
-  Platform,
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import { MagnifyingGlass, FunnelSimple, List, UserCircle } from "phosphor-react-native";
+import {
+  MagnifyingGlass,
+  FunnelSimple,
+  List,
+  UserCircle,
+  CalendarBlank,
+} from "phosphor-react-native";
 import * as Font from "expo-font";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { format } from 'date-fns';
+import { format } from "date-fns";
+import CategoryButton from "@/components/CategoryButton"; // Importando o novo componente
 
 export default function SearchScreen() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -28,7 +34,9 @@ export default function SearchScreen() {
 
   const loadFont = async () => {
     await Font.loadAsync({
+      MontserratRegular: require("@/assets/fonts/Montserrat-Regular.ttf"),
       MontserratSemiBold: require("@/assets/fonts/Montserrat-SemiBold.ttf"),
+      MontserratBold: require("@/assets/fonts/Montserrat-Bold.ttf"),
     });
   };
 
@@ -41,18 +49,16 @@ export default function SearchScreen() {
   }
 
   const formatDate = (date: Date) => {
-    return format(date, 'dd/MM/yyyy');
+    return format(date, "dd/MM/yyyy");
   };
 
-  const toggleCategorySelection = (category: string) => {
-    setSelectedCategories(prevState =>
-      prevState.includes(category)
-        ? prevState.filter(item => item !== category)
-        : [...prevState, category]
+  const toggleCategorySelection = (id: string) => {
+    setSelectedCategories((prevState) =>
+      prevState.includes(id)
+        ? prevState.filter((item) => item !== id)
+        : [...prevState, id]
     );
   };
-
-  const isCategorySelected = (category: string) => selectedCategories.includes(category);
 
   const clearFilters = () => {
     setSelectedCategories([]);
@@ -60,33 +66,72 @@ export default function SearchScreen() {
     setEndDate(null);
   };
 
+  // Lista de categorias fictícias
+  const categories = [
+    { id: "1", name: "DGTI" },
+    { id: "2", name: "Administrativo" },
+    { id: "3", name: "Hotel de Projetos" },
+    { id: "4", name: "Projeto Integrador" },
+    { id: "5", name: "ADS" },
+    { id: "6", name: "Integrado" },
+    { id: "7", name: "Banco de dados" },
+    { id: "8", name: "EDA" },
+    { id: "9", name: "Superior" },
+  ];
+
+  const handleStartDateChange = (event: any, selectedDate: Date | undefined) => {
+    setShowStartPicker(false);
+    if (selectedDate) {
+      const currentDate = new Date();
+      // Se a data selecionada for maior que a data atual, define como a data atual
+      const newStartDate = selectedDate > currentDate ? currentDate : selectedDate;
+
+      // Verifica se a nova data inicial é maior que a data final
+      if (endDate && newStartDate > endDate) {
+        setEndDate(newStartDate); // Ajusta a data final para ser igual à nova data inicial
+      }
+
+      setStartDate(newStartDate);
+    }
+  };
+
+  const handleEndDateChange = (event: any, selectedDate: Date | undefined) => {
+    setShowEndPicker(false);
+    if (selectedDate) {
+      const currentDate = new Date();
+      const newEndDate = selectedDate > currentDate ? currentDate : selectedDate;
+  
+      // Verifica se a nova data final é menor que a data inicial
+      if (startDate && newEndDate < startDate) {
+        setEndDate(startDate); // Ajusta a data final para ser igual à data inicial
+      } else {
+        setEndDate(newEndDate);
+      }
+    }
+  };
+  
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
         <StatusBar barStyle={"light-content"} backgroundColor={"#01A1C5"} />
-        
+
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <TouchableOpacity
-              onPress={() => console.log("Menu")}
-              style={styles.menu}
-            >
-              <List size={28} color="#01A1C5" />
-            </TouchableOpacity>
             <Text style={styles.headerTitle}>Buscar</Text>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity onPress={() => console.log("User")}>
+            <TouchableOpacity onPress={() => console.log("User     ")}>
               <UserCircle size={32} color="#01A1C5" />
             </TouchableOpacity>
           </View>
         </View>
-        
+
         <View style={styles.body}>
           <View style={styles.searchWrapper}>
             <View style={styles.searchContainer}>
               <TextInput
-                placeholder="Pesquisa"
+                placeholder="Pesquisar"
                 style={styles.searchInput}
                 placeholderTextColor="#B0B0B0"
                 value={searchText}
@@ -97,15 +142,17 @@ export default function SearchScreen() {
                 <MagnifyingGlass size={20} color="#606060" />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity 
-              style={styles.filterButton} 
-              onPress={() => setModalVisible(true)}
-            >
+            <TouchableOpacity style={styles.filterButton} onPress={() => setModalVisible(true)}>
               <FunnelSimple size={20} color="#606060" />
             </TouchableOpacity>
           </View>
+            {/* area com resultado da pesquisa, ScrollView */}
+            <ScrollView style={styles.searchResults}>
+              <Text>Resultados da pesquisa</Text>
+            </ScrollView>
         </View>
-        
+
+        {/* Modal Code */}
         <Modal
           animationType="slide"
           transparent={true}
@@ -119,37 +166,51 @@ export default function SearchScreen() {
               onPress={() => setModalVisible(false)}
             />
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Filtros</Text>
               <View style={styles.categoryHeader}>
                 <Text style={styles.label}>Categoria (Interesse)</Text>
-                <TouchableOpacity onPress={clearFilters} style={styles.clearButton}>
+                <TouchableOpacity
+                  onPress={clearFilters}
+                  style={styles.clearButton}
+                >
                   <Text style={styles.clearButtonText}>Limpar Filtros</Text>
                 </TouchableOpacity>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={styles.categoriesContainer}>
-                  {["DGTI", "Administrativo", "Hotel de Projetos", "Projeto Integrador", "ADS", "Integrado", "Banco de dados", "EDA", "Superior"].map((item) => (
-                    <TouchableOpacity 
-                      key={item}
-                      style={[styles.filterItem, isCategorySelected(item) && styles.selectedFilterItem]} 
-                      onPress={() => toggleCategorySelection(item)}
-                    >
-                      <Text style={isCategorySelected(item) ? styles.selectedText : null}>{item}</Text>
-                    </TouchableOpacity>
+                  {categories.map((category) => (
+                    <CategoryButton
+                      key={category.id}
+                      id={category.id}
+                      name={category.name}
+                      isSelected={selectedCategories.includes(category.id)}
+                      onSelect={toggleCategorySelection}
+                    />
                   ))}
                 </View>
               </ScrollView>
               <Text style={styles.label}>Período</Text>
               <View style={styles.dateContainer}>
-                <TouchableOpacity onPress={() => setShowStartPicker(true)} style={styles.dateInput}>
-                  <Text style={styles.dateText}>
-                    {startDate ? formatDate(startDate) : "Data inicial"}
-                  </Text>
+                <TouchableOpacity
+                  onPress={() => setShowStartPicker(true)}
+                  style={styles.dateInput}
+                >
+                  <View style={styles.dateContent}>
+                    <CalendarBlank size={20} color="#606060" />
+                    <Text style={styles.dateText}>
+                      {startDate ? formatDate(startDate) : "Data inicial"}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setShowEndPicker(true)} style={styles.dateInput}>
-                  <Text style={styles.dateText}>
-                    {endDate ? formatDate(endDate) : "Data Final"}
-                  </Text>
+                <TouchableOpacity
+                  onPress={() => setShowEndPicker(true)}
+                  style={styles.dateInput}
+                >
+                  <View style={styles.dateContent}>
+                    <CalendarBlank size={20} color="#606060" />
+                    <Text style={styles.dateText}>
+                      {endDate ? formatDate(endDate) : "Data Final"}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               </View>
               {showStartPicker && (
@@ -157,12 +218,7 @@ export default function SearchScreen() {
                   value={startDate || new Date()}
                   mode="date"
                   display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowStartPicker(false);
-                    if (selectedDate) {
-                      setStartDate(selectedDate);
-                    }
-                  }}
+                  onChange={handleStartDateChange}
                 />
               )}
               {showEndPicker && (
@@ -170,15 +226,13 @@ export default function SearchScreen() {
                   value={endDate || new Date()}
                   mode="date"
                   display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowEndPicker(false);
-                    if (selectedDate) {
-                      setEndDate(selectedDate);
-                    }
-                  }}
+                  onChange={handleEndDateChange}
                 />
               )}
-              <TouchableOpacity style={styles.applyButton} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity
+                style={styles.applyButton}
+                onPress={() => setModalVisible(false)}
+              >
                 <Text style={styles.applyButtonText}>Aplicar</Text>
               </TouchableOpacity>
             </View>
@@ -198,7 +252,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 12,
+    padding: 8,
     backgroundColor: "#fff",
   },
   headerLeft: {
@@ -209,24 +263,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  menu: {
-    marginRight: 1,
-  },
   headerTitle: {
     fontFamily: "MontserratSemiBold",
     fontSize: 24,
     color: "#01A1C5",
+    marginLeft: 8,
   },
   body: {
     flex: 1,
-    paddingHorizontal: '3%',
-    paddingTop: '5%',
+    paddingHorizontal: "1%",
+    backgroundColor: "#fff",
   },
   searchWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: '4%',
-    marginTop: '5%',
+    marginHorizontal: "4%",
+    marginTop: "5%",
   },
   searchContainer: {
     flexDirection: "row",
@@ -234,18 +286,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAEAEA",
     borderRadius: 10,
     flex: 1,
-    paddingHorizontal: '4%',
+    paddingHorizontal: "4%",
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
     color: "#333",
   },
+  searchResults: {
+    flex: 1,
+    marginHorizontal: 4,
+    marginVertical: 8,
+  },
   iconButton: {
-    padding: '1%',
+    padding: "1%",
   },
   filterButton: {
-    marginLeft: '5%',
+    marginLeft: "5%",
     backgroundColor: "transparent",
     borderRadius: 10,
   },
@@ -259,7 +316,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: "#fff",
-    padding: '2%',
+    padding: "4%",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },
@@ -267,19 +324,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: '5%',
+    marginBottom: "5%",
     color: "#01A1C5",
   },
   categoryHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: '3%',
+    marginBottom: "3%",
   },
   label: {
     fontSize: 16,
     fontWeight: "600",
-    marginTop: '2%',
+    marginTop: "2%",
   },
   clearButton: {
     backgroundColor: "transparent",
@@ -291,16 +348,16 @@ const styles = StyleSheet.create({
   },
   categoriesContainer: {
     flexDirection: "row",
-    marginVertical: '1%',
+    marginVertical: "1%",
   },
   filterItem: {
-    padding: '1%',
+    padding: "1%",
     borderRadius: 8,
     backgroundColor: "transparent",
-    marginRight: '2%',
+    marginRight: "2%",
     borderWidth: 1,
     borderColor: "#01A1C5",
-    paddingVertical: '0.5%',
+    paddingVertical: "0.5%",
   },
   selectedFilterItem: {
     backgroundColor: "#01A1C5",
@@ -311,31 +368,35 @@ const styles = StyleSheet.create({
   dateContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: '2%',
-    marginBottom: '8%',
+    marginTop: "2%",
+    marginBottom: "8%",
   },
   dateInput: {
     flex: 1,
     backgroundColor: "#EAEAEA",
     borderRadius: 7,
-    padding: '2%',
-    marginHorizontal: '3%',
-    textAlign: "center",
+    padding: "2%",
+    marginHorizontal: "3%",
+  },
+  dateContent: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   dateText: {
     color: "#333",
-    textAlign: "center",
+    textAlign: "left", // Alinhando o texto à esquerda
+    marginLeft: 5, // Espaço entre o ícone e o texto
   },
   applyButton: {
     backgroundColor: "#01A1C5",
     borderRadius: 15,
     borderWidth: 1,
     borderColor: "#01A1C5",
-    paddingVertical: '1%',
+    paddingVertical: "1%",
     alignItems: "center",
-    marginTop: '5%',
-    marginBottom: '5%',
-    margin: '15%',
+    marginTop: "5%",
+    marginBottom: "5%",
+    margin: "15%",
   },
   applyButtonText: {
     color: "#FFF",

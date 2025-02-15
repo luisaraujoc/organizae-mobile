@@ -1,8 +1,13 @@
 import { View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
+import { AuthProvider, useAuth } from "./auth/AuthContext";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Home from "./grupos/grupo/home";
+import Signin from "./auth/signin";
 
-export default function Index() {
+/*export default function Index() {
   const router = useRouter();
 
   useEffect(() => {
@@ -10,7 +15,11 @@ export default function Index() {
       const isLoggedIn = true; // Simule a verificação de login
 
       if (isLoggedIn) {
+<<<<<<< HEAD
         router.push("/tabs/espaco"); // Navega para a tela home se o usuário estiver logado
+=======
+        router.push("/grupos/group"); // Navega para a tela home se o usuário estiver logado
+>>>>>>> 26433addbaf9470e43d8009be2ebe21668a342f5
       } else {
         router.push("/auth/signin"); // Navega para a tela de seleção de grupo
       }
@@ -21,10 +30,39 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      {/* Você pode adicionar um carregando ou algo aqui se quiser */}
+      
     </View>
   );
+}*/
+
+const Stack = createNativeStackNavigator();
+
+export default function Index(){
+  return(
+    <AuthProvider>
+      <Layout />
+    </AuthProvider>
+  );
 }
+
+
+export const Layout = () => {
+  const { authState, onLogout } = useAuth();
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        { authState?.authenticated ? (
+          <Stack.Screen name="Home" component={Home} />
+        ) :
+        (
+          <Stack.Screen name="SignIn" component={Signin} />
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+
+};
 
 const styles = StyleSheet.create({
   container: {

@@ -27,7 +27,7 @@ export default function AdminSpaceScreen() {
         </View>
       </View>
 
-      {/* Card com margem superior e outras alterações */}
+      
       <View style={styles.card}>
         <View style={styles.profileContainer}>
           <View style={styles.avatarPlaceholder}>
@@ -41,7 +41,7 @@ export default function AdminSpaceScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Descrição logo abaixo da imagem de perfil */}
+     
         <TouchableOpacity onPress={toggleDescription} style={styles.profileDescriptionContainer}>
           <Text style={styles.profileDescription}>
             {isExpanded

@@ -41,6 +41,8 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({ userType }) => {
 
   const handleCreatePost = () => {
     isOpen && setIsOpen(false);
+
+    router.navigate("/grupos/_subTelas/criarPost");
   };
 
   const handleEnterSpace = () => {

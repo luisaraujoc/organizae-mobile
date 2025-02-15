@@ -14,6 +14,7 @@ import * as Font from "expo-font";
 import React, { useEffect, useState, useRef } from "react";
 import { FloatingButton as FAB } from "@/components/FloatingButton";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Home() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -66,7 +67,7 @@ export default function Home() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle={"dark-content"} backgroundColor={"white"} />
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -78,11 +79,6 @@ export default function Home() {
             )}
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Organizaê</Text>
-        </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity onPress={() => console.log("User")}>
-            <UserCircle size={32} color="#01A1C5" />
-          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.body}>
@@ -134,7 +130,7 @@ export default function Home() {
           </TouchableOpacity>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -174,10 +170,10 @@ const styles = StyleSheet.create({
   menu: {
     marginRight: 12,
   },
- FloatButton: {
+  FloatButton: {
     position: "absolute",
-    bottom: "5%",
-    right: "2%",
+    bottom: 1,
+    right: 1,
   },
   overlay: {
     flex: 1,

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import * as Font from "expo-font";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import SignUp from "./signup";
 import { router } from "expo-router";
 import Textinput from "@/components/Textinput";
@@ -42,7 +42,7 @@ export default function Signin() {
           <View style={styles.InputBox}>
             <Text style={[styles.defaultText]}>Senha</Text>
             <Textinput onChangeText={() => {}} keyboardType="default" />
-          </View>
+          </View>w
         </View>
 
         {/* SignUp Button e LogIn Button */}

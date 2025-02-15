@@ -96,37 +96,18 @@ export default function CreateSpaceScreen() {
             </Text>
           )}
 
-          <View style={styles.cardContainer}>
-            <TouchableOpacity style={styles.cardHeader} onPress={() => pickImage('header')}>
-                {headerImage ? (
-                    <Image source={{ uri: headerImage }} style={styles.cardHeaderImage} />
-                ) : (
-                   <View style={styles.placeholderHeader}>
-                       <Ionicons name="image-outline" size={30} color="#777" />
-                       <Text style={styles.placeholderTextHeader}>Adicionar Imagem de Capa</Text>
-                   </View>
-
-                )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.cardAvatarContainer}
-              onPress={() => pickImage('avatar')}
-            >
-              {image ? (
-                <Image source={{ uri: image }} style={styles.cardAvatar} />
-              ) : (
-                <Ionicons name="person-outline" size={30} color="#777" />
-              )}
-               <View style={styles.cardAvatarBorder} />
-            </TouchableOpacity>
-            <Text style={styles.cardTitle}>{name || "Nome do espaço"}</Text>
-            <Text style={styles.cardDescription}>
-              {description || "Descrição"}
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
+      <View style={styles.cardContainer}>
+        <View style={styles.cardHeader} />
+        <TouchableOpacity style={styles.cardAvatarContainer} onPress={pickImage}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.cardAvatar} />
+          ) : (
+            <Ionicons name="person-outline" size={30} color="#777" />
+          )}
+        </TouchableOpacity>
+        <Text style={styles.cardTitle}>{name || "Nome do espaço"}</Text>
+        <Text style={styles.cardDescription}>{description || "Descrição"}</Text>
+      </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -146,6 +127,7 @@ export default function CreateSpaceScreen() {
           <Text style={styles.buttonText}>Salvar</Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
     </View>
   );
 }
@@ -202,7 +184,8 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     width: "100%",
-    height: 121,
+    height: 80,
+    backgroundColor: "#1A1A1A",
     borderBottomWidth: 2,
     borderColor: "#ddd",
     justifyContent: 'center',
@@ -233,20 +216,7 @@ const styles = StyleSheet.create({
     top: 90,
     overflow: "hidden",
   },
-    cardAvatarBorder: { //Adiciona a borda
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        width: '100%',
-        height: '50%',
-        borderBottomWidth: 2,
-        borderLeftWidth: 2,
-        borderRightWidth: 2,
-        borderColor: "#ddd",
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        boxSizing: 'border-box'
-    },
+
   cardAvatar: {
     width: "100%",
     height: "100%",
@@ -280,13 +250,9 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    height: 30,
-    padding: 5,
+    padding: 15,
     alignItems: "center",
-    borderRadius: 15,
-    marginTop: "5%",
-    marginBottom: "5%",
-    margin: "15%",
+    borderRadius: 8,
     marginHorizontal: 5,
   },
   cancelButton: {

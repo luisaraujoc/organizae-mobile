@@ -98,19 +98,36 @@ export default function CreateSpaceScreen() {
             </Text>
           )}
 
-      <View style={styles.cardContainer}>
-        <View style={styles.cardHeader} />
-        <TouchableOpacity style={styles.cardAvatarContainer} onPress={pickImage}>
-          {image ? (
-            <Image source={{ uri: image }} style={styles.cardAvatar} />
-          ) : (
-            <Ionicons name="person-outline" size={30} color="#777" />
-          )}
-        </TouchableOpacity>
-        <Text style={styles.cardTitle}>{name || "Nome do espaço"}</Text>
-        <Text style={styles.cardDescription}>{description || "Descrição"}</Text>
-      </View>
+          <View style={styles.cardContainer}>
+          <TouchableOpacity style={styles.cardHeader} onPress={() => pickImage('header')}>
+                {headerImage ? (
+                    <Image source={{ uri: headerImage }} style={styles.cardHeaderImage} />
+                ) : (
+                   <View style={styles.placeholderHeader}>
+                       <Ionicons name="image-outline" size={30} color="#777" />
+                       <Text style={styles.placeholderTextHeader}>Adicionar Imagem de Capa</Text>
+                   </View>
 
+                )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.cardAvatarContainer}
+              onPress={() => pickImage('avatar')}
+            >
+              {image ? (
+                <Image source={{ uri: image }} style={styles.cardAvatar} />
+              ) : (
+                <Ionicons name="add-circle" size={30} color="#777" />
+              )}
+              <View style={styles.cardAvatarBorder} />
+            </TouchableOpacity>
+            <Text style={styles.cardTitle}>{name || "Nome do espaço"}</Text>
+            <Text style={styles.cardDescription}>
+              {description || "Descrição"}
+            </Text>
+          </View>
+        </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.cancelButton]}
@@ -187,8 +204,7 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     width: "100%",
-    height: 80,
-    backgroundColor: "#1A1A1A",
+    height: 120,
     borderBottomWidth: 2,
     borderColor: "#ddd",
     justifyContent: 'center',
@@ -219,7 +235,20 @@ const styles = StyleSheet.create({
     top: 90,
     overflow: "hidden",
   },
-
+    cardAvatarBorder: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '50%',
+        borderTopWidth: 2,
+        borderLeftWidth: 2,
+        borderRightWidth: 2,
+        borderColor: "#ddd",
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        boxSizing: 'border-box'
+    },
   cardAvatar: {
     width: "100%",
     height: "100%",
@@ -253,9 +282,9 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    padding: 15,
+    padding: 5,
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 30,
     marginHorizontal: 5,
   },
   cancelButton: {

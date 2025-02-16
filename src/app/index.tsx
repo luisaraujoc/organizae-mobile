@@ -15,7 +15,11 @@ import Signin from "./auth/signin";
       const isLoggedIn = true; // Simule a verificação de login
 
       if (isLoggedIn) {
+<<<<<<< HEAD
+        router.push("/tabs/espaco"); // Navega para a tela home se o usuário estiver logado
+=======
         router.push("/grupos/group"); // Navega para a tela home se o usuário estiver logado
+>>>>>>> 26433addbaf9470e43d8009be2ebe21668a342f5
       } else {
         router.push("/auth/signin"); // Navega para a tela de seleção de grupo
       }

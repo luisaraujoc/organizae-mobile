@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from "./grupos/grupo/home";
 import Signin from "./auth/signin";
 
-/*export default function Index() {
+export default function Index() {
   const router = useRouter();
 
   useEffect(() => {
@@ -15,11 +15,8 @@ import Signin from "./auth/signin";
       const isLoggedIn = true; // Simule a verificação de login
 
       if (isLoggedIn) {
-<<<<<<< HEAD
         router.push("/tabs/espaco"); // Navega para a tela home se o usuário estiver logado
-=======
-        router.push("/grupos/group"); // Navega para a tela home se o usuário estiver logado
->>>>>>> 26433addbaf9470e43d8009be2ebe21668a342f5
+                                     // Navega para a tela home se o usuário estiver logado
       } else {
         router.push("/auth/signin"); // Navega para a tela de seleção de grupo
       }
@@ -33,17 +30,17 @@ import Signin from "./auth/signin";
       
     </View>
   );
-}*/
+}
 
 const Stack = createNativeStackNavigator();
 
-export default function Index(){
+/*export default function Index(){
   return(
     <AuthProvider>
       <Layout />
     </AuthProvider>
   );
-}
+}*/
 
 
 export const Layout = () => {

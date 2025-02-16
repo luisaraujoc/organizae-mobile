@@ -1,20 +1,48 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router"; // Usando useRouter para navegação
+
+// Definindo o tipo para o 'post'
+type Post = {
+  title: string;
+  content: string;
+};
 
 const { height, width } = Dimensions.get("window");
 
 export default function AdminSpaceScreen() {
+  const router = useRouter(); // Usando useRouter para navegação
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleDescription = () => {
     setIsExpanded(!isExpanded);
   };
 
+  const handlePostPress = (post: Post) => {
+    router.push("/grupos/_subTelas/postleitura");
+  };
+
+  const handleBackPress = () => {
+    router.back(); // Voltar para a página anterior
+  };
+
+  const handleEditPress = () => {
+    router.push("/grupos/_subTelas/criarEspaco"); // Navegar para a página de criação de espaço
+  };
+
+  const handleNavPress = (route: string) => {
+    router.push(route); // Navegar para a rota especificada
+  };
+
+  const truncateText = (text: string, maxLength: number) => {
+    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <View style={styles.iconContainer}>
@@ -27,7 +55,6 @@ export default function AdminSpaceScreen() {
         </View>
       </View>
 
-      
       <View style={styles.card}>
         <View style={styles.profileContainer}>
           <View style={styles.avatarPlaceholder}>
@@ -36,12 +63,11 @@ export default function AdminSpaceScreen() {
           <View style={styles.profileText}>
             <Text style={styles.profileName}>DEPAE</Text>
           </View>
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity style={styles.editButton} onPress={handleEditPress}>
             <Text style={styles.editButtonText}>editar espaço</Text>
           </TouchableOpacity>
         </View>
 
-     
         <TouchableOpacity onPress={toggleDescription} style={styles.profileDescriptionContainer}>
           <Text style={styles.profileDescription}>
             {isExpanded
@@ -50,21 +76,46 @@ export default function AdminSpaceScreen() {
           </Text>
         </TouchableOpacity>
 
-        
         <View style={styles.postsContainer}>
-          <TouchableOpacity style={styles.postContainer}>
+          {/* Post 1 */}
+          <TouchableOpacity
+            style={styles.postContainer}
+            onPress={() =>
+              handlePostPress({
+                title: "Reenvio de documentos para auxílio • reabertura de prazos",
+                content:
+                  "Prezados(as) Senhores(as), Gostaríamos de informar que os documentos poderão ser reenviados até o final deste mês...",
+              })
+            }
+          >
             <Text style={styles.postAuthor}>Gertrudes Cabral 5h</Text>
             <Text style={styles.postTitle}>Reenvio de documentos para auxílio • reabertura de prazos</Text>
             <Text style={styles.postDescription}>
-              Prezados(as) Senhores(as), Gostaríamos de informar que...
+              {truncateText(
+                "Prezados(as) Senhores(as), Gostaríamos de informar que os documentos poderão ser reenviados até o final deste mês...",
+                80
+              )}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.postContainer}>
+          {/* Post 2 */}
+          <TouchableOpacity
+            style={styles.postContainer}
+            onPress={() =>
+              handlePostPress({
+                title: "Calendário de Pagamento da Próxima Parcela do Auxílio",
+                content:
+                  "Prezados(as) Senhores(as), Gostaríamos de comunicar que o pagamento da próxima parcela do auxílio estudantil ocorrerá na segunda semana do próximo mês...",
+              })
+            }
+          >
             <Text style={styles.postAuthor}>Gertrudes Cabral 5h</Text>
             <Text style={styles.postTitle}>Calendário de Pagamento da Próxima Parcela do Auxílio</Text>
             <Text style={styles.postDescription}>
-              Prezados(as) Senhores(as), Gostaríamos de comunicar que...
+              {truncateText(
+                "Prezados(as) Senhores(as), Gostaríamos de comunicar que o pagamento da próxima parcela do auxílio estudantil ocorrerá na segunda semana do próximo mês...",
+                80
+              )}
             </Text>
           </TouchableOpacity>
         </View>
@@ -72,19 +123,19 @@ export default function AdminSpaceScreen() {
 
       {/* Barra de Navegação Inferior */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity style={styles.navButton} onPress={() => handleNavPress("/grupos/grupo/home")}>
           <Ionicons name="home-outline" size={24} color="gray" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity style={styles.navButton} onPress={() => handleNavPress("/grupos/grupo/buscar")}>
           <Ionicons name="search-outline" size={24} color="gray" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity style={styles.navButton} onPress={() => handleNavPress("/criarespaco")}>
           <Ionicons name="add-circle" size={48} color="#00AEEF" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity style={styles.navButton} onPress={() => handleNavPress("/notificações")}>
           <Ionicons name="chatbubble-outline" size={24} color="gray" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity style={styles.navButton} onPress={() => handleNavPress("/perfil")}>
           <Ionicons name="person-outline" size={24} color="gray" />
         </TouchableOpacity>
       </View>
@@ -126,8 +177,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginHorizontal: 0,
     paddingTop: 15,
-    paddingBottom: 0, 
-    paddingHorizontal: 15, 
+    paddingBottom: 0,
+    paddingHorizontal: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -164,7 +215,7 @@ const styles = StyleSheet.create({
   profileDescription: {
     fontSize: 14,
     color: "gray",
-    width: "100%", 
+    width: "100%",
   },
   editButton: {
     padding: 7,
@@ -177,17 +228,17 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     marginTop: 10,
-    flex: 1, 
+    flex: 1,
   },
   postContainer: {
     backgroundColor: "white",
-    paddingVertical: 15, 
-    paddingHorizontal: 0, 
+    paddingVertical: 15,
+    paddingHorizontal: 0,
     borderBottomWidth: 1,
     borderColor: "#ddd",
-    width: "100%",  
+    width: "100%",
     flexDirection: "column",
-    justifyContent: "flex-start", 
+    justifyContent: "flex-start",
   },
   postAuthor: {
     fontSize: 12,
@@ -197,13 +248,13 @@ const styles = StyleSheet.create({
   postTitle: {
     fontSize: 14,
     fontWeight: "bold",
-    width: "100%", // Garantir que o título ocupe toda a largura
+    width: "100%",
   },
   postDescription: {
     fontSize: 12,
     color: "gray",
     marginTop: 5,
-    width: "100%",  // Garantir que a descrição ocupe toda a largura
+    width: "100%",
   },
   bottomNav: {
     position: "absolute",

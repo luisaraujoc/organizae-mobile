@@ -68,7 +68,6 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={"dark-content"} backgroundColor={"white"} />
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity style={styles.menu} onPress={toggleSidebar}>
@@ -114,7 +113,12 @@ export default function Home() {
                 {sidebarItems.map((item, index) => (
                   <View key={index} style={styles.sidebarItem}>
                     <View style={styles.profileCircle} />
-                    <Text style={styles.itemText}>{item}</Text>
+                    <TouchableOpacity onPress={() => {
+                      toggleSidebar();
+                      router.navigate('/grupos/_subTelas/espaco/[id]')
+                    }}>
+                      <Text style={styles.itemText} >{item}</Text>
+                    </TouchableOpacity>
                   </View>
                 ))}
                 <View style={styles.separator} />

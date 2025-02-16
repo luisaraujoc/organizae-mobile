@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from "./grupos/grupo/home";
 import Signin from "./auth/signin";
 
-/*export default function Index() {
+export default function Index() {
   const router = useRouter();
 
   useEffect(() => {
@@ -29,36 +29,36 @@ import Signin from "./auth/signin";
       
     </View>
   );
-}*/
-
-const Stack = createNativeStackNavigator();
-
-export default function Index(){
-  return(
-    <AuthProvider>
-      <Layout />
-    </AuthProvider>
-  );
 }
 
-
-export const Layout = () => {
-  const { authState, onLogout } = useAuth();
-
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        { authState?.authenticated ? (
-          <Stack.Screen name="Home" component={Home} />
-        ) :
-        (
-          <Stack.Screen name="SignIn" component={Signin} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-
-};
+// const Stack = createNativeStackNavigator();
+//
+// export default function Index(){
+//   return(
+//     <AuthProvider>
+//       <Layout />
+//     </AuthProvider>
+//   );
+// }
+//
+//
+// export const Layout = () => {
+//   const { authState, onLogout } = useAuth();
+//
+//   return (
+//     <NavigationContainer>
+//       <Stack.Navigator>
+//         { authState?.authenticated ? (
+//           <Stack.Screen name="Home" component={Home} />
+//         ) :
+//         (
+//           <Stack.Screen name="SignIn" component={Signin} />
+//         )}
+//       </Stack.Navigator>
+//     </NavigationContainer>
+//   );
+//
+// };
 
 const styles = StyleSheet.create({
   container: {

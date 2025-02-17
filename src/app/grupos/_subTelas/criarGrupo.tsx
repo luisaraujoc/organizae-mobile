@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert, Scro
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as FileSystem from 'expo-file-system';
+import axios from "axios";
 
 export default function CreateSpaceScreen() {
   const [name, setName] = useState("");
@@ -13,6 +16,7 @@ export default function CreateSpaceScreen() {
   const [showAlert, setShowAlert] = useState(false);
   const [nameCharacterCount, setNameCharacterCount] = useState(0);
   const [descriptionCharacterCount, setDescriptionCharacterCount] = useState(0);
+  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -41,14 +45,57 @@ export default function CreateSpaceScreen() {
     }
   };
 
-  const handleSave = () => {
-    setShowAlert(true);
 
-    if (!name.trim() || !description.trim()) {
-      return;
+  const criarGrupo = async () => {
+    try {
+      if (!isFormValid) {
+        setShowAlert(true);
+        return;
+      }
+  
+      setLoading(true);
+      setShowAlert(false);
+  
+      const authToken = await AsyncStorage.getItem("access_token");
+      console.log(authToken);
+
+      if (!authToken) {
+        Alert.alert("Erro", "Token de autenticação não encontrado.");
+        setLoading(false);
+        return;
+      }
+  
+      const formData = new FormData();
+  
+      if (image) {
+        const base64Image = await FileSystem.readAsStringAsync(image, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        formData.append("imagem", base64Image);
+      } else {
+        formData.append("imagem", ""); // Se nenhuma imagem foi selecionada
+      }
+  
+      formData.append("nome", name);
+      formData.append("descricao", description);
+  
+      console.log("Enviando dados do grupo:", formData);
+      const response = await axios.post("/groups", formData, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      console.log(response.data);
+      router.push("/grupos/group");
+    } catch (error: any) {
+      console.error("Erro ao criar grupo:", error.response ? error.response.data : error.message);
+    } finally {
+      setLoading(false);
     }
-    Alert.alert("Sucesso", "Grupo criado com sucesso!");
   };
+  
 
   return (
     <View style={styles.container}>
@@ -99,16 +146,16 @@ export default function CreateSpaceScreen() {
           )}
 
           <View style={styles.cardContainer}>
-          <TouchableOpacity style={styles.cardHeader} onPress={() => pickImage('header')}>
-                {headerImage ? (
-                    <Image source={{ uri: headerImage }} style={styles.cardHeaderImage} />
-                ) : (
-                   <View style={styles.placeholderHeader}>
-                       <Ionicons name="image-outline" size={30} color="#777" />
-                       <Text style={styles.placeholderTextHeader}>Adicionar Imagem de Capa</Text>
-                   </View>
+            <TouchableOpacity style={styles.cardHeader} onPress={() => pickImage('header')}>
+              {headerImage ? (
+                <Image source={{ uri: headerImage }} style={styles.cardHeaderImage} />
+              ) : (
+                <View style={styles.placeholderHeader}>
+                  <Ionicons name="image-outline" size={30} color="#777" />
+                  <Text style={styles.placeholderTextHeader}>Adicionar Imagem de Capa</Text>
+                </View>
 
-                )}
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -128,25 +175,25 @@ export default function CreateSpaceScreen() {
             </Text>
           </View>
         </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, styles.cancelButton]}
-          activeOpacity={0.7}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.buttonText}>Cancelar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            isFormValid ? styles.saveButton : styles.disabledButton,
-          ]}
-          onPress={handleSave}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.buttonText}>Salvar</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            activeOpacity={0.7}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.buttonText}>Cancelar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              isFormValid ? styles.saveButton : styles.disabledButton,
+            ]}
+            onPress={() => criarGrupo()}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.buttonText}>Salvar</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -215,15 +262,15 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-    placeholderHeader: {
+  placeholderHeader: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
-    placeholderTextHeader: {
-        color: '#777',
-        fontSize: 14
-    },
+  placeholderTextHeader: {
+    color: '#777',
+    fontSize: 14
+  },
   cardAvatarContainer: {
     width: 60,
     height: 60,
@@ -235,20 +282,20 @@ const styles = StyleSheet.create({
     top: 90,
     overflow: "hidden",
   },
-    cardAvatarBorder: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '50%',
-        borderTopWidth: 2,
-        borderLeftWidth: 2,
-        borderRightWidth: 2,
-        borderColor: "#ddd",
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        boxSizing: 'border-box'
-    },
+  cardAvatarBorder: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '50%',
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderRightWidth: 2,
+    borderColor: "#ddd",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    boxSizing: 'border-box'
+  },
   cardAvatar: {
     width: "100%",
     height: "100%",
@@ -269,7 +316,7 @@ const styles = StyleSheet.create({
     paddingBottom: "7%",
     paddingLeft: 20,
     paddingRight: 20,
-      textAlign: 'justify'
+    textAlign: 'justify'
   },
   buttonContainer: {
     position: 'absolute',
@@ -300,10 +347,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
-    characterCount: {
-        textAlign: 'right',
-        color: '#666',
-        marginBottom: 10,
-        marginRight: 5
+  characterCount: {
+    textAlign: 'right',
+    color: '#666',
+    marginBottom: 10,
+    marginRight: 5
   }
 });

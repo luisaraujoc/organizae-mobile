@@ -16,6 +16,16 @@ import { FloatingButton as FAB } from "@/components/FloatingButton";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PreviaPost from "@/components/PreviaPost";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+type Post = {
+  id: number;
+  title: string;
+  content: string;
+  author: string;
+  timestamp: string;
+  authorPhoto: string;
+};
 
 export default function Home() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -36,11 +46,13 @@ export default function Home() {
   useEffect(() => {
 
     const fetchPosts = async () => {
+
+      const authToken = await AsyncStorage.getItem("access_token");
       try {
         const response = await fetch("https://organizae-f7aca8e7f687.herokuapp.com/posts/posts", {
           method: "GET",
           headers: {
-            "Authorization": 'Bearer YOUR_TOKEN_HERE', 
+            "Authorization": `Bearer ${authToken}`, 
           },
         });
         const data = await response.json();
@@ -106,7 +118,7 @@ export default function Home() {
   };
 
   const handlePostPress = (postId: number) => {
-    router.push('/grupos/_subTelas/post/${postId}');
+    router.push('/grupos/_subTelas/post/[id]');
   };
 
   return (
@@ -134,7 +146,13 @@ export default function Home() {
               key={post.id}
               onPress={() => handlePostPress(post.id)}
             >
-              <PreviaPost post={post} />
+              <PreviaPost 
+                postAuthor={post.author}
+                postTimer={post.timestamp}
+                postTitle={post.title}
+                postDescription={post.content}
+                onPress={()=>handlePostPress(post.id)}
+                />
             </TouchableOpacity>
           ))
         )}

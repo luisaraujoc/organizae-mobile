@@ -1,36 +1,33 @@
-import { View, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { useEffect } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from "./grupos/grupo/home";
-import Signin from "./auth/signin";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/context/authContext";
 import React from "react";
 
 export default function Index() {
   const router = useRouter();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      const isLoggedIn = true; // Simule a verificação de login
-
-      if (isLoggedIn) {
-        router.push("/grupos/grupo/home"); // Navega para a tela de seleção de grupo	
+    if (!loading) {
+      if (user) {
+        router.replace("/grupos/group"); // Usuário autenticado vai para a Home
       } else {
-        router.push("/auth/signin"); // Navega para a tela de seleção de grupo
+        router.replace("/auth/signin"); // Não autenticado vai para Login
       }
-    }, 1000);
+    }
+  }, [user, loading]);
 
-    return () => clearTimeout(timeout);
-  }, []);
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#01A1C5" />
+      </View>
+    );
+  }
 
-  return (
-    <View style={styles.container}>
-      {/*  */}
-    </View>
-  );
+  return <View style={styles.container} />;
 }
-
 
 const styles = StyleSheet.create({
   container: {

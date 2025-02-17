@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
 import { CaretLeft } from "phosphor-react-native";
 import Markdown from 'react-native-markdown-display';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 type Post = {
@@ -10,32 +11,54 @@ type Post = {
   title: string;
   content: string;
   author: string;
+  espaco: string
   timestamp: string;
   authorPhoto: string;
 };
 
-export default function PosLeituraScreen() {
+export default function PosLeituraScreen(postId: number) {
   const router = useRouter();
+  const [post, setPost] = useState<Post | null>(null);
 
-  //  post  passado através de parâmetros de navegação
-  const post: Post = {
-    title: "Reenvio de documentos para auxílio • reabertura de prazos",
-    content: `
-# Heading 1 se comporta como 3
-## Heading 2 se comporta como 3
-### Título Grande
-Este é um **Markdown** renderizado no React Native.
-- Item 1
-- Item 2
-- [Link](https://example.com)
+  useEffect(() => {
 
-    `,
-    author: "Gertrudes Cabral",
-    timestamp: "5h",
-    authorPhoto: "https://via.placeholder.com/60",
-    id: 0
-  };
+    const fetchPosts = async () => {
 
+      const authToken = await AsyncStorage.getItem("access_token");
+      try {
+        const response = await fetch(`https://organizae-f7aca8e7f687.herokuapp.com/posts/posts/${postId}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${authToken}`,
+          },
+        });
+        const data = await response.json();
+        if (data.status === "sucesso") {
+
+          console.log(data.data.conteudo);
+
+          const postData = {
+            id: postId,
+            title: data.data.titulo,
+            content: data.data.conteudo,
+            author: data.data.usuario,
+            espaco: data.data.espaco,
+            timestamp: "Agora",
+            authorPhoto: "https://avatars.githubusercontent.com/u/62845400?v=4",
+          };
+          setPost(postData);
+          
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const copy = `${post?.content}`;
+  console.log(post);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -46,20 +69,22 @@ Este é um **Markdown** renderizado no React Native.
       <ScrollView>
         <View style={styles.authorContainer}>
           <View style={styles.authorPhotoContainer}>
-            <Image source={{ uri: post.authorPhoto }} style={styles.authorPhoto} />
+            <Image source={{ uri: post?.authorPhoto }} style={styles.authorPhoto} />
           </View>
           <View style={styles.authorInfoContainer}>
-            <Text style={styles.department}>DEPAE</Text>
+            <Text style={styles.department}>{
+                post?.espaco
+              }</Text>
             <View style={styles.authorInfo}>
               <Text style={styles.authorName}>
-                {post.author} <Text style={styles.dot}>•</Text> <Text style={styles.timestamp}>{post.timestamp}</Text>
+                {post?.author} <Text style={styles.dot}>•</Text> <Text style={styles.timestamp}>{post?.timestamp}</Text>
               </Text>
             </View>
           </View>
         </View>
 
         <View style={styles.postContainer}>
-          <Text style={styles.postTitle}>{post.title}</Text>
+          <Text style={styles.postTitle}>{post?.title}</Text>
           <Markdown
             rules={{
               // Limita os headings para h3 até h6
@@ -80,7 +105,7 @@ Este é um **Markdown** renderizado no React Native.
               br: { marginVertical: 10 },
             }}
           >
-            {post.content}
+            {copy}
           </Markdown>
         </View>
       </ScrollView>

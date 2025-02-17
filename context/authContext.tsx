@@ -60,23 +60,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       logout();
     }
   };
-
   const login = async (email: string, senha: string) => {
     try {
       const { data } = await api.post("users/login", { email, senha });
-      if (!data.access_token || !data.refresh_token) {
+  
+      if (data.status !== "sucesso") {
+        throw new Error(`Falha no login: ${data.mensagem}`);
+      }
+  
+      const { access_token, refresh_token } = data.data;
+  
+      if (!access_token || !refresh_token) {
         throw new Error("Tokens não retornados pela API");
       }
-      await AsyncStorage.setItem("access_token", data.access_token);
-      await AsyncStorage.setItem("refresh_token", data.refresh_token);
-      api.defaults.headers.Authorization = `Bearer ${data.access}`;
-      setUser (data.user);
+  
+      await AsyncStorage.multiSet([
+        ["access_token", access_token],
+        ["refresh_token", refresh_token],
+      ]);
+  
+      api.defaults.headers.Authorization = `Bearer ${access_token}`;
+  
       router.replace("/grupos/group");
+  
+      return true; 
     } catch (error) {
       console.error("Erro ao fazer login:", error);
+      return false; 
     }
   };
-
+  
 
   const signup = async (nome: string, email: string, senha: string) => {
     try {

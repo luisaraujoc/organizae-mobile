@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { CaretLeft } from "phosphor-react-native";
+import Markdown from 'react-native-markdown-display';
+
 
 type Post = {
   id: number;
@@ -18,30 +20,34 @@ export default function PosLeituraScreen() {
   //  post  passado através de parâmetros de navegação
   const post: Post = {
     title: "Reenvio de documentos para auxílio • reabertura de prazos",
-    content:
-      "Prezados(as) Senhores(as), Gostaríamos de informar que os documentos poderão ser reenviados até o final deste mês. Além disso, reabrimos os prazos para o envio de novos documentos para análise. O processo de reenvio será realizado por meio da nossa plataforma online, onde os interessados poderão preencher os dados necessários e anexar os arquivos pertinentes. Pedimos que todos os envolvidos atentem-se ao prazo estipulado para garantir que o processo ocorra sem contratempos. Agradecemos a colaboração de todos e estamos à disposição para qualquer dúvida ou esclarecimento.",
+    content: `
+# Heading 1 se comporta como 3
+## Heading 2 se comporta como 3
+### Título Grande
+Este é um **Markdown** renderizado no React Native.
+- Item 1
+- Item 2
+- [Link](https://example.com)
+
+    `,
     author: "Gertrudes Cabral",
     timestamp: "5h",
     authorPhoto: "https://via.placeholder.com/60",
+    id: 0
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Cabeçalho */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={ () => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={30} color="grey" />
+        <TouchableOpacity style={styles.IconButton} onPress={() => router.back()}>
+          <CaretLeft size={24} color="#01A1C5" />
         </TouchableOpacity>
       </View>
       <ScrollView>
-        {/* Informações do autor e departamento lado a lado */}
         <View style={styles.authorContainer}>
-          {/* Foto do autor */}
           <View style={styles.authorPhotoContainer}>
             <Image source={{ uri: post.authorPhoto }} style={styles.authorPhoto} />
           </View>
-
-          {/* Nome do departamento e informações do autor */}
           <View style={styles.authorInfoContainer}>
             <Text style={styles.department}>DEPAE</Text>
             <View style={styles.authorInfo}>
@@ -52,10 +58,30 @@ export default function PosLeituraScreen() {
           </View>
         </View>
 
-        {/* Conteúdo do Post */}
         <View style={styles.postContainer}>
           <Text style={styles.postTitle}>{post.title}</Text>
-          <Text style={styles.postContent}>{post.content}</Text>
+          <Markdown
+            rules={{
+              // Limita os headings para h3 até h6
+              heading1: () => null,
+              heading2: () => null,
+            }}
+            style={{
+              heading1: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+              heading2: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+              heading3: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+              heading4: { fontSize: 18, fontWeight: 'bold', color: '#444' },
+              heading5: { fontSize: 16, fontWeight: 'bold', color: '#555' },
+              heading6: { fontSize: 14, fontWeight: 'bold', color: '#666' },
+              paragraph: { fontSize: 14, lineHeight: 24, color: "#333" },
+              list_item: { marginVertical: 5 },
+              code_inline: { backgroundColor: '#f4f4f4', padding: 4, borderRadius: 4, color: '#D63384' },
+              code_block: { backgroundColor: '#222', padding: 10, borderRadius: 5, color: '#fff' },
+              br: { marginVertical: 10 },
+            }}
+          >
+            {post.content}
+          </Markdown>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -65,36 +91,26 @@ export default function PosLeituraScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f1f1f1",
+    backgroundColor: "#fff",
   },
   header: {
-    // height: 65, 
-    backgroundColor: "white",
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    padding: 8,
   },
-  backButton: {
-    color: "red",
-    position: "absolute",
-    left: 20,
-    top: "50%",
-    transform: [{ translateY: -15 }],
+  IconButton: {
+    padding: '2%',
   },
   authorContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: 20,
-    marginTop: 20,
+    marginHorizontal: '4%',
+    marginTop: '2%',
   },
   authorPhotoContainer: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 30,
     backgroundColor: "#ddd",
     justifyContent: "center",
@@ -138,9 +154,9 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   postTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 25,
+    marginBottom: 10,
   },
   postContent: {
     fontSize: 14,

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Font from "expo-font";
-import { CaretLeft, ListBullets, ListNumbers, TextAUnderline, TextB, TextItalic, TextStrikethrough } from "phosphor-react-native";
+import { CaretLeft, CodeBlock, CodeSimple, ListBullets, ListNumbers, TextAUnderline, TextB, TextItalic, TextStrikethrough } from "phosphor-react-native";
 
 const MarkdownEditor = () => {
     const [text, setText] = useState('');
@@ -57,18 +57,27 @@ const MarkdownEditor = () => {
     const applyStrikethrough = () => insertText('~~');
     const applyUnderline = () => insertText('__');
     const applyBulletList = (autoContinue = false) => insertText('- ', true, autoContinue);
-    const applyNumberedList = (autoContinue = false) => {
-        const lines = text.split('\n');
-        let lastNumber = 0;
-        for (let i = lines.length - 1; i >= 0; i--) {
-            const match = lines[i].match(/^(\d+)\.\s/);
-            if (match) {
-                lastNumber = parseInt(match[1], 10);
-                break;
-            }
+    const applyInlineCode = () => insertText('`');
+    const applyCodeBlock = () => {
+        const { start, end } = selection;
+        const isTextSelected = start !== end;
+        const selectedText = text.substring(start, end);
+
+        let newText;
+        let newCursorPosition;
+
+        if (isTextSelected) {
+            newText = text.substring(0, start) + '```\n' + selectedText + '\n```' + text.substring(end);
+            newCursorPosition = end + 8; // Ajusta posição do cursor após bloco
+        } else {
+            newText = text.substring(0, start) + '```\n\n```' + text.substring(start);
+            newCursorPosition = start + 4;
         }
-        const insert = `${lastNumber + 1}. `;
-        insertText(insert, true, autoContinue);
+
+        setText(newText);
+        setTimeout(() => {
+            textInputRef.current?.setSelection(newCursorPosition, newCursorPosition);
+        }, 10);
     };
 
     return (
@@ -112,22 +121,30 @@ const MarkdownEditor = () => {
                     }
                 }}
             />
-            <View style={styles.toolbar}>
-                <TouchableOpacity onPress={applyBold} style={styles.formatButton}>
-                    <TextB size={24} color="#01A1C5" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={applyItalic} style={styles.formatButton}>
-                    <TextItalic size={24} color="#01A1C5" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={applyStrikethrough} style={styles.formatButton}>
-                    <TextStrikethrough size={24} color="#01A1C5" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={applyUnderline} style={styles.formatButton}>
-                    <TextAUnderline size={24} color="#01A1C5" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => applyBulletList(false)} style={styles.formatButton}>
-                    <ListBullets size={24} color="#01A1C5" />
-                </TouchableOpacity>
+            <View>
+                <ScrollView horizontal style={styles.toolbar}>
+                    <TouchableOpacity onPress={applyBold} style={styles.formatButton}>
+                        <TextB size={24} color="#01A1C5" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={applyItalic} style={styles.formatButton}>
+                        <TextItalic size={24} color="#01A1C5" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={applyStrikethrough} style={styles.formatButton}>
+                        <TextStrikethrough size={24} color="#01A1C5" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={applyUnderline} style={styles.formatButton}>
+                        <TextAUnderline size={24} color="#01A1C5" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => applyBulletList(false)} style={styles.formatButton}>
+                        <ListBullets size={24} color="#01A1C5" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={applyInlineCode} style={styles.formatButton}>
+                        <CodeSimple size={24} color="#01A1C5" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={applyCodeBlock} style={styles.formatButton}>
+                        <CodeBlock size={24} color="#01A1C5" />
+                    </TouchableOpacity>
+                </ScrollView>
             </View>
         </View>
     );
@@ -164,7 +181,7 @@ export default function Editor() {
                 </View>
                 <View style={styles.headerRight}>
                     <TouchableOpacity style={styles.postSend} onPress={() => { }}>
-                        <Text>Publicar</Text>
+                        <Text style={styles.postSendText}>Publicar</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -232,30 +249,28 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         marginHorizontal: '2%',
     },
-    toolbar: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        marginTop: '2%',
-        marginBottom: 10,
+    postSendText: {
+        color: "#fff",
+        fontSize: 16,
+        fontFamily: "MontserratSemiBold",
     },
     postEditor: {
         flex: 1,
         display: 'flex',
-        flexDirection: 'column',
         justifyContent: 'space-between',
-        // flexWrap: 'wrap',
-        // ocupar todo o espaço disponível
+        flexDirection: 'column',
         height: '100%'
     },
     editor: {
         color: 'black',
-        backgroundColor: 'rgba(104, 104, 104, 0.07)',
-        marginHorizontal: '2%',
         flex: 1,
         textAlignVertical: 'top', // Faz o texto começar do topo
-        borderRadius: 8,
         fontFamily: 'MontserratRegular',
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+    },
+    toolbar: {
+        flexDirection: 'row',
     },
     formatButton: {
         marginHorizontal: 5,

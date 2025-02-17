@@ -7,6 +7,7 @@ import {
   Plus,
 } from "phosphor-react-native";
 import { EnterGroupModal } from "./entrarEspacoModal";
+import { router } from "expo-router";
 
 export default function FloatingGButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -78,7 +79,8 @@ export default function FloatingGButton() {
           <TouchableOpacity
             style={styles.menuItem}
             onPress={() => {
-              handleCreateGroup();
+              // handleCreateGroup();
+              router.navigate("/grupos/_subTelas/criarGrupo");
               console.log("Criar Grupo");
             }}
           >

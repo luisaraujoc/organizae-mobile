@@ -47,7 +47,7 @@ export default function CreateSpaceScreen() {
     if (!name.trim() || !description.trim()) {
       return;
     }
-    Alert.alert("Sucesso", "Espaço criado com sucesso!");
+    Alert.alert("Sucesso", "Grupo criado com sucesso!");
   };
 
   return (
@@ -57,14 +57,14 @@ export default function CreateSpaceScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View>
-          <Text style={styles.title}>Conte-nos sobre o novo espaço</Text>
+          <Text style={styles.title}>Conte-nos sobre o novo grupo</Text>
           <Text style={styles.subtitle}>
             O nome e a descrição ajudam os usuários a entenderem do que se trata esta nova seção de avisos.
           </Text>
 
           <TextInput
             style={styles.input}
-            placeholder="Nome do espaço *"
+            placeholder="Nome do grupo *"
             value={name}
             onChangeText={(text) => {
               setName(text);
@@ -122,7 +122,7 @@ export default function CreateSpaceScreen() {
               )}
               <View style={styles.cardAvatarBorder} />
             </TouchableOpacity>
-            <Text style={styles.cardTitle}>{name || "Nome do espaço"}</Text>
+            <Text style={styles.cardTitle}>{name || "Nome do grupo"}</Text>
             <Text style={styles.cardDescription}>
               {description || "Descrição"}
             </Text>

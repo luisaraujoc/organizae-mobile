@@ -19,6 +19,7 @@ import PreviaPost from "@/components/PreviaPost";
 
 export default function Home() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]); 
   const slideAnim = useRef(new Animated.Value(-Dimensions.get('window').width * 0.65)).current;
   const router = useRouter();
 
@@ -32,9 +33,35 @@ export default function Home() {
     loadFont();
   }, []);
 
-  if (!Font.isLoaded) {
-    return null;
-  }
+  useEffect(() => {
+
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch("https://organizae-f7aca8e7f687.herokuapp.com/posts/posts", {
+          method: "GET",
+          headers: {
+            "Authorization": 'Bearer YOUR_TOKEN_HERE', 
+          },
+        });
+        const data = await response.json();
+        if (data.status === "sucesso") {
+          const postsData = data.data.map((post: any) => ({
+            id: post.id,
+            title: post.titulo,
+            content: post.conteudo,
+            author: "Autor Exemplo",
+            timestamp: "Agora", 
+            authorPhoto: "https://via.placeholder.com/60",
+          }));
+          setPosts(postsData); 
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
+    fetchPosts(); 
+  }, []);
 
   const toggleSidebar = () => {
     if (sidebarVisible) {
@@ -53,61 +80,34 @@ export default function Home() {
     }
   };
 
+  // json com os itens do sidebar
+  // idEspaco: number, nomeEspaco: string
   const sidebarItems = [
-    "Diretoria Geral",
-    "DGTI",
-    "COGEP",
-    "CAENS",
-    "DEPAE",
-    "CORES",
-    "ADS",
-  ];
-
-  const posts: Post[] = [
     {
-        title: "Reenvio de documentos para auxílio • reabertura de prazos",
-        content: "Prezados(as) Senhores(as), Gostaríamos de informar que os documentos poderão ser reenviados até o final deste mês. Além disso, reabrimos os prazos para o envio de novos documentos para análise. O processo de reenvio será realizado por meio da nossa plataforma online, onde os interessados poderão preencher os dados necessários e anexar os arquivos pertinentes. Pedimos que todos os envolvidos atentem-se ao prazo estipulado para garantir que o processo ocorra sem contratempos. Agradecemos a colaboração de todos e estamos à disposição para qualquer dúvida ou esclarecimento.",
-        author: "Gertrudes Cabral",
-        timestamp: "5h",
-        authorPhoto: "https://via.placeholder.com/60",
+      idEspaco: 1,
+      nomeEspaco: "Espaço 1",
     },
     {
-        title: "Atualização sobre o Auxílio Emergencial",
-        content: "A nova atualização sobre o auxílio emergencial foi divulgada. Fique atento às novas datas e valores. Acompanhe as notícias para mais informações.",
-        author: "João Silva",
-        timestamp: "2h",
-        authorPhoto: "https://via.placeholder.com/60",
+      idEspaco: 2,
+      nomeEspaco: "Espaço 2",
     },
     {
-        title: "Dicas para Gerenciar Suas Finanças",
-        content: "Aprenda a gerenciar suas finanças pessoais com dicas práticas e eficazes. Organize seu orçamento e evite dívidas desnecessárias.",
-        author: "Maria Oliveira",
-        timestamp: "1d",
-        authorPhoto: "https://via.placeholder.com/60",
+      idEspaco: 3,
+      nomeEspaco: "Espaço 3",
     },
     {
-        title: "Como Funciona o Programa de Bolsa Família",
-        content: "Entenda como funciona o programa de Bolsa Família e como ele pode ajudar sua família. Informações sobre requisitos e benefícios.",
-        author: "Carlos Pereira",
-        timestamp: "3d",
-        authorPhoto: "https://via.placeholder.com/60",
+      idEspaco: 4,
+      nomeEspaco: "Espaço 4",
     },
-    {
-        title: "Mudanças nas Regras do Auxílio Brasil",
-        content: "Fique por dentro das mudanças nas regras do Auxílio Brasil e como isso pode impactar você e sua família. Acompanhe as atualizações.",
-        author: "Ana Costa",
-        timestamp: "1w",
-        authorPhoto: "https://via.placeholder.com/60",
-    }
-];
+  ]
 
   const handleCreateSpace = () => {
     router.push("/grupos/_subTelas/criarEspaco");
   };
 
-  const handlePostPress = (Post) => {
-    router.push("/grupos/_subTelas/post/%5Bid%5D");
-  }
+  const handlePostPress = (postId: number) => {
+    router.push('/grupos/_subTelas/post/${postId}');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -124,28 +124,26 @@ export default function Home() {
         </View>
       </View>
       <ScrollView style={styles.body}>
-        {posts.length > 0 ? (
-          posts.map((post, index) => (
-            <PreviaPost
-              key={index}
-              postAuthor={post.author}
-              postTimer={post.timestamp}
-              postTitle={post.title}
-              postDescription={post.content}
-              onPress={() => handlePostPress(post)}
-            />
-          ))
-        ) : (
+        {posts.length === 0 ? (
           <View style={styles.noPostsContainer}>
-            <Text style={styles.noPostsText}>Nenhum post foi feito até o momento.</Text>
+            <Text style={styles.noPostsText}>Nenhum post disponível.</Text>
           </View>
+        ) : (
+          posts.map((post) => (
+            <TouchableOpacity
+              key={post.id}
+              onPress={() => handlePostPress(post.id)}
+            >
+              <PreviaPost post={post} />
+            </TouchableOpacity>
+          ))
         )}
       </ScrollView>
       <View style={styles.FloatButton}>
         <FAB userType={"admin"} />
       </View>
 
-      {/* Sidebar (using Animated.View) */}
+      {}
       <Modal
         transparent={true}
         visible={sidebarVisible}
@@ -161,20 +159,22 @@ export default function Home() {
             <Animated.View
               style={[
                 styles.sidebar,
-                {
-                  transform: [{ translateX: slideAnim }],
-                },
+                { transform: [{ translateX: slideAnim }] },
               ]}
             >
               <ScrollView style={styles.scrollView}>
                 {sidebarItems.map((item, index) => (
                   <View key={index} style={styles.sidebarItem}>
                     <View style={styles.profileCircle} />
-                    <TouchableOpacity onPress={() => {
-                      toggleSidebar();
-                      router.navigate('/grupos/_subTelas/espaco/[id]')
-                    }}>
-                      <Text style={styles.itemText} >{item}</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        toggleSidebar();
+                        router.push('/grupos/_subTelas/espaco/[id]');
+                      }}
+                    >
+                      <Text style={styles.itemText}>
+                        {item.nomeEspaco}
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     display: "flex",
     alignContent: "flex-start",
     flex: 1,
-    paddingHorizontal: '2%'
+    paddingHorizontal: '2%',
   },
   menu: {
     marginRight: 12,
@@ -251,10 +251,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: "5%",
     paddingTop: "4%",
     paddingBottom: "4%",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
   },
   sidebarItem: {
     flexDirection: "row",

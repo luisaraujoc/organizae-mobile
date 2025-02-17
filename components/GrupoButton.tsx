@@ -1,3 +1,4 @@
+import React from "react";
 import {
   TouchableOpacity,
   TouchableOpacityProps,
@@ -8,6 +9,7 @@ import {
 
 interface GrupoButtonProps {
   nomeGrupo: string; // Nome do grupo
+  idGrupo: number; // ID do grupo
   onPress: () => void; // Ensure onPress is defined
 }
 
@@ -50,9 +52,11 @@ const style = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "center",
-    width: "35%",
+    width: "30%",
     height: "auto",
-    boxShadow: "4px 8px 24px rgba(0, 0, 0, 0.2)",
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+    marginHorizontal: 4,
+    marginVertical: 4,
   },
   nomeGrupo: {
     fontSize: 14,

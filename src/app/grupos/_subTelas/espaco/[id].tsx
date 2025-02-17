@@ -7,6 +7,39 @@ import {router} from "expo-router";
 
 const {height, width} = Dimensions.get("window");
 
+const posts = [
+    {
+        postAuthor: "Gertrudes Cabral",
+        postTimer: "5h",
+        postTitle: "Calendário de Pagamento da Próxima Parcela do Auxílio",
+        postDescription: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse suscipit dapibus risus et faucibus. Integer consequat ipsum nunc, eget sagittis metus accumsan sed. Sed ornare laoreet hendrerit. Etiam mollis, eros non aliquet sagittis, arcu erat eleifend ipsum, nec ullamcorper massa augue eget elit. In tristique nec diam porttitor eleifend. Duis lacinia malesuada est id ultricies. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce faucibus turpis non metus commodo consequat. Maecenas mattis enim quis massa porttitor gravida. Vivamus sagittis nunc ac condimentum lobortis. Fusce nec quam non orci dapibus pulvinar at nec enim. Duis at semper libero, ac mattis velit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam vulputate lorem ut justo rutrum, quis fringilla lorem pulvinar. Fusce consequat varius massa, quis elementum lacus blandit vel. Donec ut molestie erat."
+    },
+    {
+        postAuthor: "João Silva",
+        postTimer: "2h",
+        postTitle: "Atualização sobre o Auxílio Emergencial",
+        postDescription: "A nova atualização sobre o auxílio emergencial foi divulgada. Fique atento às novas datas e valores. Acompanhe as notícias para mais informações."
+    },
+    {
+        postAuthor: "Maria Oliveira",
+        postTimer: "1d",
+        postTitle: "Dicas para Gerenciar Suas Finanças",
+        postDescription: "Aprenda a gerenciar suas finanças pessoais com dicas práticas e eficazes. Organize seu orçamento e evite dívidas desnecessárias."
+    },
+    {
+        postAuthor: "Carlos Pereira",
+        postTimer: "3d",
+        postTitle: "Como Funciona o Programa de Bolsa Família",
+        postDescription: "Entenda como funciona o programa de Bolsa Família e como ele pode ajudar sua família. Informações sobre requisitos e benefícios."
+    },
+    {
+        postAuthor: "Ana Costa",
+        postTimer: "1w",
+        postTitle: "Mudanças nas Regras do Auxílio Brasil",
+        postDescription: "Fique por dentro das mudanças nas regras do Auxílio Brasil e como isso pode impactar você e sua família. Acompanhe as atualizações."
+    }
+];
+
 export default function Espaco() {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -15,7 +48,7 @@ export default function Espaco() {
     };
 
     const handlePostPress = () => {
-        // Lógica para redirecionar para o post
+        router.push("/grupos/_subTelas/post/%5Bid%5D");
     };
 
     return (
@@ -59,13 +92,16 @@ export default function Espaco() {
 
                 {/* Posts Container */}
                 <ScrollView style={styles.postsContainer}>
+                {posts.map((post, index) => (
                     <PreviaPost
-                        postAuthor="Gertrudes Cabral"
-                        postTimer="5h"
-                        postTitle="Calendário de Pagamento da Próxima Parcela do Auxílio"
-                        postDescription="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse suscipit dapibus risus et faucibus. Integer consequat ipsum nunc, eget sagittis metus accumsan sed. Sed ornare laoreet hendrerit. Etiam mollis, eros non aliquet sagittis, arcu erat eleifend ipsum, nec ullamcorper massa augue eget elit. In tristique nec diam porttitor eleifend. Duis lacinia malesuada est id ultricies. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce faucibus turpis non metus commodo consequat. Maecenas mattis enim quis massa porttitor gravida. Vivamus sagittis nunc ac condimentum lobortis. Fusce nec quam non orci dapibus pulvinar at nec enim. Duis at semper libero, ac mattis velit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam vulputate lorem ut justo rutrum, quis fringilla lorem pulvinar. Fusce consequat varius massa, quis elementum lacus blandit vel. Donec ut molestie erat."
-                        onPress={handlePostPress}
+                        key={index}
+                        postAuthor={post.postAuthor}
+                        postTimer={post.postTimer}
+                        postTitle={post.postTitle}
+                        postDescription={post.postDescription}
+                        onPress={() => handlePostPress(post)}
                     />
+                ))}
                 </ScrollView>
             </View>
         </SafeAreaView>
@@ -82,7 +118,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         paddingHorizontal: '2%',
-        paddingVertical: 12
+        paddingVertical: 8
     },
     headerLeft: {
         justifyContent: "flex-start",

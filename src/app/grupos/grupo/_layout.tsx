@@ -1,5 +1,6 @@
 import { Stack, Tabs } from "expo-router";
 import { House, MagnifyingGlass } from "phosphor-react-native";
+import React from "react";
 
 export default function TabsLayout() {
   return (

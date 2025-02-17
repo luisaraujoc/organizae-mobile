@@ -12,7 +12,7 @@ import {
   Plus,
 } from "phosphor-react-native";
 import { router } from "expo-router";
-import EnterSpaceModal from "./entrarEspacoModal"; // Import correto
+import { EnterSpaceModal } from "./entrarEspacoModal"; // Import correto
 
 
 interface FloatingButtonProps {
@@ -59,11 +59,9 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({ userType }) => {
     isOpen && setIsOpen(false);
   };
 
-    const handlePopupSubmit = (code: string) => {
-    // AQUI você coloca a lógica de validação, requisição, etc.
-      console.log("Código de acesso recebido:", code);
-      setIsPopupVisible(false); //Fecha o modal.
-
+  const handlePopupSubmit = (code: string) => {
+    console.log("Código de acesso recebido:", code);
+    setIsPopupVisible(false);
   };
 
   return (

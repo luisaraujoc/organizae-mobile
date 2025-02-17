@@ -3,6 +3,7 @@ import { GroupHeader } from "@/components/Header";
 import GrupoButton from "@/components/GrupoButton";
 import { router } from "expo-router";
 import FloatingGButton from "@/components/FloatingGButton";
+import React from "react";
 
 
 export default function Group() {
@@ -12,6 +13,23 @@ export default function Group() {
       <View style={style.body}>
         <GrupoButton
           nomeGrupo="Grupo 1"
+          idGrupo={11}
+          onPress={() => {
+            console.log("Navigating to /grupo/grupo/home");
+            router.push("/grupos/grupo/home");
+          }}
+        />
+        <GrupoButton
+          nomeGrupo="Grupo 2"
+          idGrupo={12}
+          onPress={() => {
+            console.log("Navigating to /grupo/grupo/home");
+            router.push("/grupos/grupo/home");
+          }}
+        />
+        <GrupoButton
+          nomeGrupo="Grupo 3"
+          idGrupo={13}
           onPress={() => {
             console.log("Navigating to /grupo/grupo/home");
             router.push("/grupos/grupo/home");
@@ -35,7 +53,8 @@ const style = StyleSheet.create({
     paddingHorizontal: 16,
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-between",
+    flexWrap: "wrap",
+    justifyContent: "center",
     alignItems: "center",
   },
   FloatButton: {

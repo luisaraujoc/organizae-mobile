@@ -1,64 +1,33 @@
-import { View, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { useEffect } from "react";
-import { AuthProvider, useAuth } from "./auth/AuthContext";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from "./grupos/grupo/home";
-import Signin from "./auth/signin";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/context/authContext";
+import React from "react";
 
 export default function Index() {
   const router = useRouter();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      const isLoggedIn = true; // Simule a verificação de login
-
-      if (isLoggedIn) {
-        router.push("/grupos/group"); // Navega para a tela home se o usuário estiver logado
+    if (!loading) {
+      if (user) {
+        router.replace("/grupos/group"); // Usuário autenticado vai para a Home
       } else {
-        router.push("/auth/signin"); // Navega para a tela de seleção de grupo
+        router.replace("/auth/signin"); // Não autenticado vai para Login
       }
-    }, 1000);
+    }
+  }, [user, loading]);
 
-    return () => clearTimeout(timeout);
-  }, []);
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#01A1C5" />
+      </View>
+    );
+  }
 
-  return (
-    <View style={styles.container}>
-      
-    </View>
-  );
+  return <View style={styles.container} />;
 }
-
-// const Stack = createNativeStackNavigator();
-//
-// export default function Index(){
-//   return(
-//     <AuthProvider>
-//       <Layout />
-//     </AuthProvider>
-//   );
-// }
-//
-//
-// export const Layout = () => {
-//   const { authState, onLogout } = useAuth();
-//
-//   return (
-//     <NavigationContainer>
-//       <Stack.Navigator>
-//         { authState?.authenticated ? (
-//           <Stack.Screen name="Home" component={Home} />
-//         ) :
-//         (
-//           <Stack.Screen name="SignIn" component={Signin} />
-//         )}
-//       </Stack.Navigator>
-//     </NavigationContainer>
-//   );
-//
-// };
 
 const styles = StyleSheet.create({
   container: {

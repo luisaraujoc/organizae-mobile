@@ -3,33 +3,49 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-nativ
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Font from "expo-font";
-import { CaretLeft, ListBullets, ListNumbers, TextB, TextItalic, TextStrikethrough } from "phosphor-react-native";
+import { CaretLeft, ListBullets, ListNumbers, TextAUnderline, TextB, TextItalic, TextStrikethrough } from "phosphor-react-native";
 
 const MarkdownEditor = () => {
     const [text, setText] = useState('');
     const [selection, setSelection] = useState({ start: 0, end: 0 });
     const textInputRef = useRef<TextInput>(null);
 
-    const insertText = (insert: string) => {
+    const insertText = (insert: string, isList: boolean = false, autoContinue: boolean = false) => {
         const input = textInputRef.current;
         if (input) {
             const { start, end } = selection;
             const isTextSelected = start !== end;
             const selectedText = text.substring(start, end);
+            const lines = text.split('\n');
+            const currentLineIndex = text.substring(0, start).split('\n').length - 1;
+            const currentLine = lines[currentLineIndex] || "";
 
             let newText;
             let newCursorPosition;
 
             if (isTextSelected) {
-                newText = text.substring(0, start) + insert + selectedText + insert + text.substring(end);
-                newCursorPosition = end + insert.length * 2;
+                newText = text.substring(0, start) + insert + selectedText + (isList ? '' : insert) + text.substring(end);
+                newCursorPosition = end + insert.length;
             } else {
-                newText = text.substring(0, start) + insert + insert + text.substring(start);
-                newCursorPosition = start + insert.length;
+                if (autoContinue) {
+                    if (currentLine.trim() === insert.trim()) {
+                        lines.splice(currentLineIndex, 1);
+                        newText = lines.join('\n');
+                        newCursorPosition = start - insert.length - 1;
+                    } else {
+                        newText = text.substring(0, start) + '\n' + insert + text.substring(start);
+                        newCursorPosition = start + insert.length + 1;
+                    }
+                } else if (isList) {
+                    newText = text.substring(0, start) + '\n' + insert + text.substring(start);
+                    newCursorPosition = start + insert.length + 1;
+                } else {
+                    newText = text.substring(0, start) + insert + insert + text.substring(start);
+                    newCursorPosition = start + insert.length;
+                }
             }
 
             setText(newText);
-
             setTimeout(() => {
                 input.setSelection(newCursorPosition, newCursorPosition);
             }, 10);
@@ -39,8 +55,21 @@ const MarkdownEditor = () => {
     const applyBold = () => insertText('**');
     const applyItalic = () => insertText('*');
     const applyStrikethrough = () => insertText('~~');
-    const applyBulletList = () => insertText('- ');
-    const applyNumberedList = () => insertText('1. ');
+    const applyUnderline = () => insertText('__');
+    const applyBulletList = (autoContinue = false) => insertText('- ', true, autoContinue);
+    const applyNumberedList = (autoContinue = false) => {
+        const lines = text.split('\n');
+        let lastNumber = 0;
+        for (let i = lines.length - 1; i >= 0; i--) {
+            const match = lines[i].match(/^(\d+)\.\s/);
+            if (match) {
+                lastNumber = parseInt(match[1], 10);
+                break;
+            }
+        }
+        const insert = `${lastNumber + 1}. `;
+        insertText(insert, true, autoContinue);
+    };
 
     return (
         <View style={styles.postEditor}>
@@ -53,6 +82,35 @@ const MarkdownEditor = () => {
                 onChangeText={setText}
                 textAlignVertical="top"
                 onSelectionChange={({ nativeEvent: { selection } }) => setSelection(selection)}
+                onKeyPress={({ nativeEvent }) => {
+                    if (nativeEvent.key === 'Enter') {
+                        const { start } = selection;
+                        const lines = text.split('\n');
+                        const currentLineIndex = text.substring(0, start).split('\n').length - 1;
+                        const currentLine = lines[currentLineIndex] || '';
+
+                        console.log(`Comando enter dado:\n"${text}"`);
+
+                        // Verifica se a linha atual é uma lista numerada
+                        if (/^(\d+)\.\s/.test(currentLine)) {
+                            // Se a linha atual estiver vazia, remove-a
+                            if (currentLine.trim() === '') {
+                                lines.splice(currentLineIndex, 1); // Remove a linha vazia
+                                setText(lines.join('\n'));
+                                setTimeout(() => {
+                                    // Ajusta a posição do cursor para a linha anterior
+                                    const newCursorPosition = start - 1; // Ajusta para a linha anterior
+                                    textInputRef.current?.setSelection(newCursorPosition, newCursorPosition);
+                                }, 10);
+                            } else {
+                                // Se a linha atual não estiver vazia, cria o próximo item
+                                setTimeout(() => applyNumberedList(true), 10);
+                            }
+                        } else if (currentLine.startsWith('- ')) {
+                            setTimeout(() => applyBulletList(true), 10);
+                        }
+                    }
+                }}
             />
             <View style={styles.toolbar}>
                 <TouchableOpacity onPress={applyBold} style={styles.formatButton}>
@@ -64,11 +122,11 @@ const MarkdownEditor = () => {
                 <TouchableOpacity onPress={applyStrikethrough} style={styles.formatButton}>
                     <TextStrikethrough size={24} color="#01A1C5" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={applyBulletList} style={styles.formatButton}>
-                    <ListBullets size={24} color="#01A1C5" />
+                <TouchableOpacity onPress={applyUnderline} style={styles.formatButton}>
+                    <TextAUnderline size={24} color="#01A1C5" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={applyNumberedList} style={styles.formatButton}>
-                    <ListNumbers size={24} color="#01A1C5" />
+                <TouchableOpacity onPress={() => applyBulletList(false)} style={styles.formatButton}>
+                    <ListBullets size={24} color="#01A1C5" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -76,7 +134,7 @@ const MarkdownEditor = () => {
 };
 
 
-export default function CreateSpaceScreen() {
+export default function Editor() {
     const loadFont = async () => {
         await Font.loadAsync({
             MontserratRegular: require("@/assets/fonts/Montserrat-Regular.ttf"),
@@ -96,9 +154,19 @@ export default function CreateSpaceScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.IconButton} onPress={() => router.push("/grupos/grupo/home")}>
-                    <CaretLeft size={24} color="#01A1C5" />
-                </TouchableOpacity>
+                <View style={styles.headerLeft}>
+                    <TouchableOpacity style={styles.IconButton} onPress={() => router.back()}>
+                        <CaretLeft size={24} color="#01A1C5" />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.postToSpace} onPress={() => { }}>
+                        <Text>/nomeDoEspaco</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.headerRight}>
+                    <TouchableOpacity style={styles.postSend} onPress={() => { }}>
+                        <Text>Publicar</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
             <View style={styles.postTitle}>
                 <TextInput style={styles.title} placeholder={'Título da postagem'} />
@@ -111,13 +179,15 @@ export default function CreateSpaceScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        margin: 0,
+        padding: 0,
         backgroundColor: "#fff",
     },
     title: {
-        fontSize: 16,
-        fontWeight: "600",
+        fontSize: 20,
+        fontWeight: "bold",
         color: "#01A1C5",
-        fontFamily: "Montserrat SemiBold",
+        fontFamily: "MontserratBold",
     },
     header: {
         flexDirection: "row",
@@ -125,6 +195,18 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         paddingHorizontal: '2%',
         paddingVertical: 8
+    },
+    headerLeft: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        flex: 1
+    },
+    headerRight: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-end",
+        flex: 1
     },
     IconButton: {
         padding: '2%',
@@ -136,16 +218,35 @@ const styles = StyleSheet.create({
         padding: 4,
         borderRadius: 8
     },
+    postToSpace: {
+        backgroundColor: "rgba(168, 168, 168, 0.44)",
+        borderRadius: 24,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        marginHorizontal: '2%',
+    },
+    postSend: {
+        backgroundColor: "#01A1C5",
+        borderRadius: 24,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        marginHorizontal: '2%',
+    },
     toolbar: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
+        alignItems: 'center',
+        marginTop: '2%',
         marginBottom: 10,
     },
     postEditor: {
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        // flexWrap: 'wrap',
+        // ocupar todo o espaço disponível
+        height: '100%'
     },
     editor: {
         color: 'black',
@@ -154,6 +255,7 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlignVertical: 'top', // Faz o texto começar do topo
         borderRadius: 8,
+        fontFamily: 'MontserratRegular',
     },
     formatButton: {
         marginHorizontal: 5,

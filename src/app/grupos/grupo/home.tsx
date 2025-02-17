@@ -15,6 +15,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { FloatingButton as FAB } from "@/components/FloatingButton";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import PreviaPost from "@/components/PreviaPost";
 
 export default function Home() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -62,9 +63,51 @@ export default function Home() {
     "ADS",
   ];
 
+  const posts: Post[] = [
+    {
+        title: "Reenvio de documentos para auxílio • reabertura de prazos",
+        content: "Prezados(as) Senhores(as), Gostaríamos de informar que os documentos poderão ser reenviados até o final deste mês. Além disso, reabrimos os prazos para o envio de novos documentos para análise. O processo de reenvio será realizado por meio da nossa plataforma online, onde os interessados poderão preencher os dados necessários e anexar os arquivos pertinentes. Pedimos que todos os envolvidos atentem-se ao prazo estipulado para garantir que o processo ocorra sem contratempos. Agradecemos a colaboração de todos e estamos à disposição para qualquer dúvida ou esclarecimento.",
+        author: "Gertrudes Cabral",
+        timestamp: "5h",
+        authorPhoto: "https://via.placeholder.com/60",
+    },
+    {
+        title: "Atualização sobre o Auxílio Emergencial",
+        content: "A nova atualização sobre o auxílio emergencial foi divulgada. Fique atento às novas datas e valores. Acompanhe as notícias para mais informações.",
+        author: "João Silva",
+        timestamp: "2h",
+        authorPhoto: "https://via.placeholder.com/60",
+    },
+    {
+        title: "Dicas para Gerenciar Suas Finanças",
+        content: "Aprenda a gerenciar suas finanças pessoais com dicas práticas e eficazes. Organize seu orçamento e evite dívidas desnecessárias.",
+        author: "Maria Oliveira",
+        timestamp: "1d",
+        authorPhoto: "https://via.placeholder.com/60",
+    },
+    {
+        title: "Como Funciona o Programa de Bolsa Família",
+        content: "Entenda como funciona o programa de Bolsa Família e como ele pode ajudar sua família. Informações sobre requisitos e benefícios.",
+        author: "Carlos Pereira",
+        timestamp: "3d",
+        authorPhoto: "https://via.placeholder.com/60",
+    },
+    {
+        title: "Mudanças nas Regras do Auxílio Brasil",
+        content: "Fique por dentro das mudanças nas regras do Auxílio Brasil e como isso pode impactar você e sua família. Acompanhe as atualizações.",
+        author: "Ana Costa",
+        timestamp: "1w",
+        authorPhoto: "https://via.placeholder.com/60",
+    }
+];
+
   const handleCreateSpace = () => {
     router.push("/grupos/_subTelas/criarEspaco");
   };
+
+  const handlePostPress = (Post) => {
+    router.push("/grupos/_subTelas/post/%5Bid%5D");
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -80,10 +123,24 @@ export default function Home() {
           <Text style={styles.headerTitle}>Organizaê</Text>
         </View>
       </View>
-      <View style={styles.body}>
-        <Text>Por enquanto, nada!</Text>
-        <Text>Home do grupo</Text>
-      </View>
+      <ScrollView style={styles.body}>
+        {posts.length > 0 ? (
+          posts.map((post, index) => (
+            <PreviaPost
+              key={index}
+              postAuthor={post.author}
+              postTimer={post.timestamp}
+              postTitle={post.title}
+              postDescription={post.content}
+              onPress={() => handlePostPress(post)}
+            />
+          ))
+        ) : (
+          <View style={styles.noPostsContainer}>
+            <Text style={styles.noPostsText}>Nenhum post foi feito até o momento.</Text>
+          </View>
+        )}
+      </ScrollView>
       <View style={styles.FloatButton}>
         <FAB userType={"admin"} />
       </View>
@@ -148,7 +205,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 12,
+    padding: 8,
   },
   headerTitle: {
     fontFamily: "MontserratSemiBold",
@@ -160,16 +217,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  headerRight: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-  },
   body: {
     display: "flex",
+    alignContent: "flex-start",
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: '2%'
   },
   menu: {
     marginRight: 12,
@@ -232,5 +284,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     color: "#01A1C5",
     fontSize: 16,
+  },
+  noPostsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  },
+  noPostsText: {
+    fontSize: 18,
+    color: '#888',
   },
 });

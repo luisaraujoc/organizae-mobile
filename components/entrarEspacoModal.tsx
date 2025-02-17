@@ -146,6 +146,136 @@ const EnterSpaceModal: React.FC<EnterSpaceModalProps> = ({
   );
 };
 
+const EnterGroupModal: React.FC<EnterSpaceModalProps> = ({
+  isVisible,
+  onClose,
+  onSubmit,
+}) => {
+  const [accessCode, setAccessCode] = useState("");
+  const CODE_LENGTH = 6;
+  const textInputRef = useRef<TextInput>(null);
+
+  const handlePopupSubmit = () => {
+    const codeRegex = /^[a-zA-Z0-9]{7}$/;
+    if (!codeRegex.test(accessCode)) {
+      alert("Código inválido.  Digite um código alfanumérico de 7 dígitos.");
+      return;
+    }
+    onSubmit(accessCode);
+    setAccessCode("");
+  };
+
+  const closeModal = () => {
+    onClose();
+    setAccessCode("");
+  };
+
+  const renderUnderlines = () => {
+    const underlines = [];
+    for (let i = 0; i < CODE_LENGTH; i++) {
+      underlines.push(
+        <View
+          key={i}
+          style={[
+            styles.underline,
+            accessCode[i] ? styles.filledUnderline : {},
+          ]}
+        />
+      );
+    }
+    return underlines;
+  }
+
+  const handlePressUnderlines = () => {
+    textInputRef.current?.focus();
+  };
+
+  return (
+    <Modal
+      visible={isVisible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={closeModal}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              Insira aqui o código da área de interesse informado pelo
+              administrador
+            </Text>
+
+            <View style={styles.inputContainer}>
+              {/* TextInput invisível */}
+              <TextInput
+                ref={textInputRef}
+                style={styles.hiddenInput}
+                value={accessCode}
+                onChangeText={(text) => setAccessCode(text.toUpperCase())}
+                maxLength={CODE_LENGTH}
+                autoCapitalize="characters"
+                keyboardType="default"
+                returnKeyType="done"
+                onSubmitEditing={handlePopupSubmit}
+                autoFocus={true}
+              />
+
+              {/* Área de exibição do código e underlines */}
+              <TouchableOpacity
+                style={styles.underlineContainer}
+                onPress={handlePressUnderlines}
+              >
+                <View style={styles.inputTextContainer}>
+                  {Array.from({ length: CODE_LENGTH }).map((_, i) => (
+                    <Text key={i} style={styles.inputText}>
+                      {accessCode[i] || ""}
+                    </Text>
+                  ))}
+                </View>
+                <View style={styles.underlineWrapper}>
+                    {renderUnderlines()}
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.modalText}>
+              Para ter acesso ao grupo:
+            </Text>
+            <View style={styles.bulletPoints}>
+              <Text style={styles.bulletPointText}>• Use um acesso autorizado</Text>
+              <Text style={styles.bulletPointText}>
+                • Use o código do grupo contendo suas letras e
+                números, sem espaços ou símbolos.
+              </Text>
+            </View>
+
+            <Text style={styles.modalInstrucoes}>
+              Caso você tenha problemas para entrar no espaço, contate um
+              administrador.
+            </Text>
+
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={closeModal}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.submitButton]}
+                onPress={handlePopupSubmit}
+              >
+                <Text style={styles.buttonText}>Entrar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
+};
+
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
@@ -258,4 +388,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EnterSpaceModal;
+export { EnterSpaceModal, EnterGroupModal };

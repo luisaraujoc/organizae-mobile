@@ -1,29 +1,15 @@
+import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import * as Font from "expo-font";
-import { useEffect, useState } from "react";
-import SignUp from "./signup";
 import { router } from "expo-router";
-import Textinput from "@/components/Textinput";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Textinput from "@/components/Textinput";
+import { useAuth } from "@/context/authContext";
+import React from "react";
 
 export default function Signin() {
-  const loadFont = async () => {
-    await Font.loadAsync({
-      MontserratLight: require("@/assets/fonts/Montserrat-Light.ttf"),
-      MontserratRegular: require("@/assets/fonts/Montserrat-Regular.ttf"),
-      MontserratMedium: require("@/assets/fonts/Montserrat-Medium.ttf"),
-      MontserratSemiBold: require("@/assets/fonts/Montserrat-SemiBold.ttf"),
-      MontserratBold: require("@/assets/fonts/Montserrat-Bold.ttf"),
-    });
-  };
-
-  useEffect(() => {
-    loadFont();
-  }, []);
-
-  if (!Font.isLoaded) {
-    return null;
-  }
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,25 +22,25 @@ export default function Signin() {
         {/* InputAreas */}
         <View style={styles.InputArea}>
           <View style={styles.InputBox}>
-            <Text style={[styles.defaultText]}>Email ou Nome de Usuário</Text>
-            <Textinput onChangeText={() => {}} keyboardType="default" />
+            <Text style={styles.defaultText}>Email</Text>
+            <Textinput onChangeText={setEmail} keyboardType="email-address" />
           </View>
           <View style={styles.InputBox}>
-            <Text style={[styles.defaultText]}>Senha</Text>
-            <Textinput onChangeText={() => {}} keyboardType="default" />
-          </View>w
+            <Text style={styles.defaultText}>Senha</Text>
+            <Textinput onChangeText={setSenha} secureTextEntry />
+          </View>
         </View>
 
-        {/* SignUp Button e LogIn Button */}
+        {/* Botões */}
         <View style={styles.ButtonArea}>
           <View style={styles.ButtonAreaLeft}>
-            <Text style={[styles.defaultText]}>Novo no Organizaê?</Text>
+            <Text style={styles.defaultText}>Novo no Organizaê?</Text>
             <TouchableOpacity onPress={() => router.push("/auth/signup")}>
               <Text style={styles.SignUpText}>Cadastre-se aqui</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.ButtonAreaRight}>
-            <TouchableOpacity style={styles.SignInButton}>
+            <TouchableOpacity style={styles.SignInButton} onPress={() => login(email, senha)}>
               <Text style={styles.SignInText}>Entrar</Text>
             </TouchableOpacity>
           </View>
@@ -63,6 +49,7 @@ export default function Signin() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

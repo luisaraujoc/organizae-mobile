@@ -43,7 +43,7 @@ export default function GrupoButton({
 
 const style = StyleSheet.create({
   GroupSelectButton: {
-    backgroundColor: "#e6e6e6",
+    backgroundColor: "#ffff",
     padding: 16,
     borderRadius: 8,
     display: "flex",
@@ -52,6 +52,7 @@ const style = StyleSheet.create({
     alignItems: "center",
     width: "35%",
     height: "auto",
+    boxShadow: "4px 8px 24px rgba(0, 0, 0, 0.2)",
   },
   nomeGrupo: {
     fontSize: 14,

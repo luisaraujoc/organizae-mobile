@@ -1,6 +1,5 @@
 import { Stack, Tabs } from "expo-router";
-import { House, MagnifyingGlass } from "phosphor-react-native";
-import React from "react";
+import { House, MagnifyingGlass, Bell } from "phosphor-react-native";
 
 export default function TabsLayout() {
   return (
@@ -24,6 +23,11 @@ export default function TabsLayout() {
         tabBarIcon: ({color, size}) => <MagnifyingGlass size={size} color={color} />,
         tabBarLabel: "Buscar",
       }}/>
+      <Tabs.Screen name="notificacao" options={{
+        tabBarIcon: ({color, size}) => <Bell size={size} color={color} />,
+        tabBarLabel: "Notificações",
+      }}/>
+
 
     </Tabs>
   );

@@ -34,4 +34,5 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-./src/app/indexOld.tsx
+# app/
+src/app/indexOld.tsx

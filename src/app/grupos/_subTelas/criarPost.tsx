@@ -57,6 +57,19 @@ const MarkdownEditor = () => {
     const applyStrikethrough = () => insertText('~~');
     const applyUnderline = () => insertText('__');
     const applyBulletList = (autoContinue = false) => insertText('- ', true, autoContinue);
+    const applyNumberedList = (autoContinue = false) => {
+        const lines = text.split('\n');
+        let lastNumber = 0;
+        for (let i = lines.length - 1; i >= 0; i--) {
+            const match = lines[i].match(/^(\d+)\.\s/);
+            if (match) {
+                lastNumber = parseInt(match[1], 10);
+                break;
+            }
+        }
+        const insert = `${lastNumber + 1}. `;
+        insertText(insert, true, autoContinue);
+    };
     const applyInlineCode = () => insertText('`');
     const applyCodeBlock = () => {
         const { start, end } = selection;
@@ -68,7 +81,7 @@ const MarkdownEditor = () => {
 
         if (isTextSelected) {
             newText = text.substring(0, start) + '```\n' + selectedText + '\n```' + text.substring(end);
-            newCursorPosition = end + 8; // Ajusta posição do cursor após bloco
+            newCursorPosition = end + 8;
         } else {
             newText = text.substring(0, start) + '```\n\n```' + text.substring(start);
             newCursorPosition = start + 4;

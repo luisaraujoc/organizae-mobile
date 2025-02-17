@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Animated,
+  Text,
 } from "react-native";
 import {
   CirclesThreePlus,
@@ -12,8 +13,7 @@ import {
   Plus,
 } from "phosphor-react-native";
 import { router } from "expo-router";
-import { EnterSpaceModal } from "./entrarEspacoModal"; // Import correto
-
+import { EnterSpaceModal } from "./entrarEspacoModal";
 
 interface FloatingButtonProps {
   userType: string;
@@ -23,26 +23,6 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({ userType }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-    Animated.timing(animation, {
-      toValue: isOpen ? 0 : 1,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  const menuTranslateY = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [20, 0],
-  });
-
-  const menuOpacity = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
-
 
   const handleCreatePost = () => {
     isOpen && setIsOpen(false);
@@ -64,74 +44,126 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({ userType }) => {
     setIsPopupVisible(false);
   };
 
+  const menuItems = [
+    {
+      icon: <FolderPlus color="#fff" />,
+      label: "Entrar em um espaço",
+      onPress: handleEnterSpace,
+      show: true,
+    },
+    {
+      icon: <FilePlus color="#fff" />,
+      label: "Nova postagem",
+      onPress: handleCreatePost,
+      show: userType === "admin",
+    },
+    {
+      icon: <CirclesThreePlus color="#fff" />,
+      label: "Criar um espaço",
+      onPress: handleCreateSpace,
+      show: userType === "admin",
+    },
+  ];
+
+  // Inicialização correta de itemAnimations
+  const itemAnimations = useRef(menuItems.map(() => new Animated.Value(0))).current;
+
+  // Animação de abertura e fechamento (geral)
+  const toggleMenu = () => {
+    const toValue = isOpen ? 0 : 1;
+
+    Animated.timing(animation, {
+      toValue,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+
+    // Animações individuais dos itens (sequencial)
+    const itemAnimationsArray = itemAnimations.map((itemAnimation) =>
+      Animated.timing(itemAnimation, {
+        toValue,
+        duration: 200, // Duração um pouco mais curta para cada item
+        useNativeDriver: false,
+      })
+    );
+
+    if (isOpen) {
+      // Fecha: executa em reverso e com um pequeno atraso entre cada
+      itemAnimationsArray.reverse();
+      itemAnimationsArray.forEach((anim, index) => {
+        setTimeout(() => anim.start(), index * 50); // Atraso de 50ms
+      });
+    } else {
+      // Abre: executa em ordem, com um pequeno atraso
+      itemAnimationsArray.forEach((anim, index) => {
+        setTimeout(() => anim.start(), index * 50); // Atraso de 50ms
+      });
+    }
+
+    setIsOpen(!isOpen);
+  };
+
+  // Interpolação para o translateY (usada em cada item)
+  const getTranslateY = (itemAnimation: Animated.Value) => {
+    return itemAnimation.interpolate({
+      inputRange: [0, 1],
+      outputRange: [20, 0], // Desliza de 20px para baixo até a posição original
+    });
+  };
+
+  const menuOpacity = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
   return (
     <View style={styles.container}>
-
-      {/* Uso do componente EnterSpaceModal */}
       <EnterSpaceModal
         isVisible={isPopupVisible}
         onClose={() => setIsPopupVisible(false)}
         onSubmit={handlePopupSubmit}
       />
 
-      {/* Restante do seu FloatingButton (Menu) */}
       {isOpen && (
-        <Animated.View
-          style={[
-            styles.menu,
-            {
-              opacity: menuOpacity,
-              transform: [{ translateY: menuTranslateY }],
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => {
-              handleEnterSpace();
-              console.log("Enter Space");
-            }}
-          >
-            <FolderPlus color="#fff" />
-          </TouchableOpacity>
-          {userType === "admin" && (
-            <>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  handleCreatePost();
-                  console.log("Create Post");
-                }}
+        <Animated.View style={[styles.menu, { opacity: menuOpacity }]}>
+          {menuItems.map((item, index) =>
+            item.show ? (
+              <Animated.View
+                key={index}
+                style={[
+                  styles.menuItemContainer,
+                  {
+                    transform: [{ translateY: getTranslateY(itemAnimations[index]) }],
+                  },
+                ]}
               >
-                <FilePlus color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  handleCreateSpace();
-                  console.log("Create Space");
-                }}
-              >
-                <CirclesThreePlus color="#fff" />
-              </TouchableOpacity>
-            </>
+                <TouchableOpacity
+                  onPress={item.onPress}
+                  style={styles.menuItemContainer} // Aplicar menuItemContainer aqui também
+                >
+                  {/* Inversão da ordem aqui */}
+                  <Text style={styles.menuItemLabel}>{item.label}</Text>
+                  <View style={styles.menuItem}>{item.icon}</View>
+                </TouchableOpacity>
+              </Animated.View>
+            ) : null
           )}
         </Animated.View>
       )}
+
       <TouchableOpacity style={styles.fab} onPress={toggleMenu}>
-        <Plus color="white" weight="bold" />
+        <Plus color="white" weight="bold" size={24} />
       </TouchableOpacity>
     </View>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
     bottom: 30,
     right: 30,
+    alignItems: "flex-end",
   },
   fab: {
     backgroundColor: "#01A1C5",
@@ -143,15 +175,26 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   menu: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-end", // Importante para alinhar os itens à direita
     paddingVertical: 6,
+    marginRight: 4,
+  },
+  menuItemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
   },
   menuItem: {
     padding: 12,
     borderRadius: 30,
-    marginVertical: 6,
     backgroundColor: "#06809c",
+    marginLeft: 8, // Espaço entre o label e o ícone (agora marginLeft)
+  },
+  menuItemLabel: {
+    color: "#06809c",
+    fontWeight: "500",
+    fontSize: 16,
+    marginRight: 8,
   },
 });
 

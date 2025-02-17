@@ -7,52 +7,34 @@ import { CaretLeft, ListBullets, ListNumbers, TextB, TextItalic, TextStrikethrou
 
 const MarkdownEditor = () => {
     const [text, setText] = useState('');
+    const [selection, setSelection] = useState({ start: 0, end: 0 });
     const textInputRef = useRef<TextInput>(null);
-
-    // useEffect para registrar o texto em tempo real
-    useEffect(() => {
-        console.log(text);
-    }, [text]);
 
     const insertText = (insert: string) => {
         const input = textInputRef.current;
         if (input) {
-            const start = input.selectionStart ?? text.length;
-            const end = input.selectionEnd ?? text.length;
-    
+            const { start, end } = selection;
             const isTextSelected = start !== end;
             const selectedText = text.substring(start, end);
-    
+
             let newText;
             let newCursorPosition;
-    
+
             if (isTextSelected) {
-                // Se houver texto selecionado, envolve corretamente com os símbolos
-                newText =
-                    text.substring(0, start) +
-                    insert + selectedText + insert +
-                    text.substring(end);
-    
-                newCursorPosition = end + insert.length * 2; // Mantém a posição correta do cursor
+                newText = text.substring(0, start) + insert + selectedText + insert + text.substring(end);
+                newCursorPosition = end + insert.length * 2;
             } else {
-                // Se não houver texto selecionado, insere os símbolos e move o cursor para o meio deles
-                newText =
-                    text.substring(0, start) +
-                    insert + insert +
-                    text.substring(start);
-    
-                newCursorPosition = start + insert.length; // Posiciona o cursor corretamente entre os símbolos
+                newText = text.substring(0, start) + insert + insert + text.substring(start);
+                newCursorPosition = start + insert.length;
             }
-    
+
             setText(newText);
-    
-            // Aguarda o estado atualizar antes de definir a posição do cursor
+
             setTimeout(() => {
                 input.setSelection(newCursorPosition, newCursorPosition);
             }, 10);
         }
     };
-    
 
     const applyBold = () => insertText('**');
     const applyItalic = () => insertText('*');
@@ -69,7 +51,8 @@ const MarkdownEditor = () => {
                 value={text}
                 placeholder="Qual o comunicado de hoje?"
                 onChangeText={setText}
-                textAlignVertical="top" // Faz o texto começar do topo
+                textAlignVertical="top"
+                onSelectionChange={({ nativeEvent: { selection } }) => setSelection(selection)}
             />
             <View style={styles.toolbar}>
                 <TouchableOpacity onPress={applyBold} style={styles.formatButton}>
@@ -91,6 +74,7 @@ const MarkdownEditor = () => {
         </View>
     );
 };
+
 
 export default function CreateSpaceScreen() {
     const loadFont = async () => {
@@ -169,6 +153,7 @@ const styles = StyleSheet.create({
         marginHorizontal: '2%',
         flex: 1,
         textAlignVertical: 'top', // Faz o texto começar do topo
+        borderRadius: 8,
     },
     formatButton: {
         marginHorizontal: 5,

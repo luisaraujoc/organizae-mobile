@@ -1,5 +1,10 @@
 import React, { useState, useRef } from "react";
-import { View, TouchableOpacity, StyleSheet, Animated } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+} from "react-native";
 import {
   CirclesThreePlus,
   FilePlus,
@@ -7,6 +12,8 @@ import {
   Plus,
 } from "phosphor-react-native";
 import { router } from "expo-router";
+import EnterSpaceModal from "./entrarEspacoModal"; // Import correto
+
 
 interface FloatingButtonProps {
   userType: string;
@@ -14,49 +21,62 @@ interface FloatingButtonProps {
 
 const FloatingButton: React.FC<FloatingButtonProps> = ({ userType }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const animation = useRef(new Animated.Value(0)).current; // Valor inicial da animação
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const animation = useRef(new Animated.Value(0)).current;
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
     Animated.timing(animation, {
-      toValue: isOpen ? 0 : 1, // Muda o valor de 0 a 1
-      duration: 300, // Duração da animação
-      useNativeDriver: false, // Não use o driver nativo para animações de opacidade
+      toValue: isOpen ? 0 : 1,
+      duration: 300,
+      useNativeDriver: false,
     }).start();
   };
 
   const menuTranslateY = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [20, 0], // Mover o menu de 20 para 0
+    outputRange: [20, 0],
   });
 
   const menuOpacity = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 1], // Mudar a opacidade de 0 a 1
+    outputRange: [0, 1],
   });
 
-  const handleAddGroup = () => {
-    // Navegar para a tela de adicionar grupo
-  };
 
   const handleCreatePost = () => {
     isOpen && setIsOpen(false);
-
     router.navigate("/grupos/_subTelas/criarPost");
   };
 
   const handleEnterSpace = () => {
     isOpen && setIsOpen(false);
+    setIsPopupVisible(true);
   };
 
   const handleCreateSpace = () => {
     router.navigate("/grupos/_subTelas/criarEspaco");
-
     isOpen && setIsOpen(false);
+  };
+
+    const handlePopupSubmit = (code: string) => {
+    // AQUI você coloca a lógica de validação, requisição, etc.
+      console.log("Código de acesso recebido:", code);
+      setIsPopupVisible(false); //Fecha o modal.
+
   };
 
   return (
     <View style={styles.container}>
+
+      {/* Uso do componente EnterSpaceModal */}
+      <EnterSpaceModal
+        isVisible={isPopupVisible}
+        onClose={() => setIsPopupVisible(false)}
+        onSubmit={handlePopupSubmit}
+      />
+
+      {/* Restante do seu FloatingButton (Menu) */}
       {isOpen && (
         <Animated.View
           style={[
@@ -107,75 +127,7 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({ userType }) => {
   );
 };
 
-const FloatingGButton: React.FC<FloatingButtonProps> = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const animation = useRef(new Animated.Value(0)).current; // Valor inicial da animação
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-    Animated.timing(animation, {
-      toValue: isOpen ? 0 : 1, // Muda o valor de 0 a 1
-      duration: 300, // Duração da animação
-      useNativeDriver: false, // Não use o driver nativo para animações de opacidade
-    }).start();
-  };
-
-  const menuTranslateY = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [20, 0], // Mover o menu de 20 para 0
-  });
-
-  const menuOpacity = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1], // Mudar a opacidade de 0 a 1
-  });
-
-  const handleAddGroup = () => {
-    // Navegar para a tela de adicionar grupo
-  };
-
-  const handleCreateGroup = () => {
-    // Navegar para a tela de adicionar grupo
-  };
-
-  return (
-    <View style={styles.container}>
-      {isOpen && (
-        <Animated.View
-          style={[
-            styles.menu,
-            {
-              opacity: menuOpacity,
-              transform: [{ translateY: menuTranslateY }],
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => {
-              handleAddGroup();
-              console.log("Entrar no Grupo");
-            }}
-          >
-            <FolderPlus color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => {
-              handleCreateGroup();
-              console.log("Criar Grupo");
-            }}
-          >
-            <FolderPlus color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
-      )}
-      <TouchableOpacity style={styles.fab} onPress={toggleMenu}>
-        <Plus color="white" weight="bold" />
-      </TouchableOpacity>
-    </View>
-  );
-};
 
 const styles = StyleSheet.create({
   container: {

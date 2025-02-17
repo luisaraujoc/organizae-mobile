@@ -112,7 +112,7 @@ export default function CreateSpaceScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.IconButton} onPress={() => router.back()}>
+                <TouchableOpacity style={styles.IconButton} onPress={() => router.push("/grupos/grupo/home")}>
                     <CaretLeft size={24} color="#01A1C5" />
                 </TouchableOpacity>
             </View>

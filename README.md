@@ -7,6 +7,12 @@ Organizaê é um sistema desenvolvido para facilitar a centralização e organiz
 - **Gerenciamento de Abas:** Criação, edição e exclusão de abas temáticas para notificações.
 - **Notificações:** Publicação, edição e distribuição de notificações dentro das abas.
 
+- **Gerenciamento de Usuários:** Armazena nome completo, data de criação e status de atividade dos usuários.
+
+- **Sistema de Inscrição:** Os usuários podem se inscrever em abas de interesse via código de acesso.
+
+- **Rastreamento de Interações:** O sistema registra datas e horários de criação de abas e notificações, além do status de entrega das notificações.
+
 ### Tipos de Usuários
 
 - **Criador:** Pode criar, excluir abas, editar notificações e se inscrever em outras abas.
@@ -14,13 +20,6 @@ Organizaê é um sistema desenvolvido para facilitar a centralização e organiz
 - **Editor:** Pode postar e editar notificações nas abas autorizadas, além de se inscrever e ler notificações em outras abas.
 
 - **Leitor:** Pode apenas visualizar mensagens nas abas de interesse.
-
-- **Gerenciamento de Usuários:** Armazena nome completo, data de criação e status de atividade dos usuários.
-
-- **Sistema de Inscrição:** Os usuários podem se inscrever em abas de interesse via código de acesso.
-
-- **Rastreamento de Interações:** O sistema registra datas e horários de criação de abas e notificações, além do status de entrega das notificações.
-
 
 ## 🛠 Tecnologias Utilizadas
 

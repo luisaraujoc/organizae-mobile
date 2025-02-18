@@ -37,7 +37,6 @@ export default function Group() {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-
         const authToken = await AsyncStorage.getItem("access_token");
 
         if (!authToken) {
@@ -57,7 +56,20 @@ export default function Group() {
 
     fetchGroups();
   }, []);
+ 
+  
+  const handleGroupPress = async (groupId: number) => {
+    try {
+        const groupIdAsString = String(groupId); 
+        await AsyncStorage.setItem("groupId", groupIdAsString);
+        console.log("groupId armazenado com sucesso:", groupIdAsString);
+        router.push('/grupos/grupo/home');
+    } catch (error) {
+        console.error("Erro ao armazenar groupId:", error);
+    }
+};
 
+  
   return (
     <SafeAreaView style={style.container}>
       <GroupHeader />
@@ -71,11 +83,8 @@ export default function Group() {
                 key={group.id}
                 nomeGrupo={group.nome}
                 idGrupo={group.id}
-                onPress={() => {
-                  router.push('/grupos/grupo/home');
-                }}
+                onPress={() => handleGroupPress(group.id)}
               >
-
                 {group.imagem ? (
                   <Image source={{ uri: group.imagem }} style={style.groupImage} />
                 ) : (
@@ -119,7 +128,6 @@ const style = StyleSheet.create({
     right: 1,
   },
   noGroupsBody: {
-    // flex: 1,
     height: "100%",
     justifyContent: "center",
     alignItems: "center",

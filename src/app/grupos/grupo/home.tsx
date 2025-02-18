@@ -1,22 +1,13 @@
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Modal,
-  Animated,
-  Dimensions,
-} from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Modal, Animated, Dimensions } from "react-native";
 import { StatusBar, Platform } from "react-native";
 import { List, UserCircle, X, PlusCircle } from "phosphor-react-native";
 import * as Font from "expo-font";
 import React, { useEffect, useState, useRef } from "react";
 import { FloatingButton as FAB } from "@/components/FloatingButton";
-import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PreviaPost from "@/components/PreviaPost";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from 'expo-router';
 
 type Post = {
   id: number;
@@ -27,11 +18,35 @@ type Post = {
   authorPhoto: string;
 };
 
+type Space = {
+  id: number;
+  nomeEspaco: string;
+};
+
 export default function Home() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]); 
+
+  const [spaces, setSpaces] = useState<Space[]>([]); 
   const slideAnim = useRef(new Animated.Value(-Dimensions.get('window').width * 0.65)).current;
   const router = useRouter();
+
+  const [id, setId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadId = async () => {
+      const storedId = await AsyncStorage.getItem('groupId'); 
+      if (storedId) {
+        setId(storedId);  
+      }
+    };
+  
+    loadId();
+  }, []);
+  
+
+  
+
 
   const loadFont = async () => {
     await Font.loadAsync({
@@ -44,15 +59,43 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-
-    const fetchPosts = async () => {
-
+    const fetchSpaces = async () => {
       const authToken = await AsyncStorage.getItem("access_token");
+
+      if (!authToken || !id) {
+        console.error("Token de autenticação ou id não encontrado.");
+        return;
+      }
+
       try {
-        const response = await fetch("https://organizae-f7aca8e7f687.herokuapp.com/posts/posts", {
+        const response = await fetch(`https://organizae-f7aca8e7f687.herokuapp.com/spaces/${id}`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${authToken}`, 
+            "Authorization": `Bearer ${authToken}`,
+          },
+        });
+        const data = await response.json();
+        if (data.status === "sucesso") {
+          setSpaces(data.data); 
+        }
+      } catch (error) {
+        console.error("Erro ao buscar espaços:", error);
+      }
+    };
+
+    if (id) {
+      fetchSpaces();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const authToken = await AsyncStorage.getItem("access_token");
+      try {
+        const response = await fetch(`https://organizae-f7aca8e7f687.herokuapp.com/posts/posts`, { 
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${authToken}`,
           },
         });
         const data = await response.json();
@@ -62,17 +105,17 @@ export default function Home() {
             title: post.titulo,
             content: post.conteudo,
             author: "Autor Exemplo",
-            timestamp: "Agora", 
+            timestamp: "Agora",
             authorPhoto: "https://via.placeholder.com/60",
           }));
-          setPosts(postsData); 
+          setPosts(postsData);
         }
       } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.error("Erro ao buscar posts:", error);
       }
     };
 
-    fetchPosts(); 
+    fetchPosts();
   }, []);
 
   const toggleSidebar = () => {
@@ -92,34 +135,14 @@ export default function Home() {
     }
   };
 
-  // json com os itens do sidebar
-  // idEspaco: number, nomeEspaco: string
-  const sidebarItems = [
-    {
-      idEspaco: 1,
-      nomeEspaco: "Espaço 1",
-    },
-    {
-      idEspaco: 2,
-      nomeEspaco: "Espaço 2",
-    },
-    {
-      idEspaco: 3,
-      nomeEspaco: "Espaço 3",
-    },
-    {
-      idEspaco: 4,
-      nomeEspaco: "Espaço 4",
-    },
-  ]
-
   const handleCreateSpace = () => {
     router.push("/grupos/_subTelas/criarEspaco");
   };
 
   const handlePostPress = (postId: number) => {
-    router.push('/grupos/_subTelas/post/[id]');
+    router.push(`/grupos/_subTelas/post/${postId}`);
   };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -151,8 +174,8 @@ export default function Home() {
                 postTimer={post.timestamp}
                 postTitle={post.title}
                 postDescription={post.content}
-                onPress={()=>handlePostPress(post.id)}
-                />
+                onPress={() => handlePostPress(post.id)}
+              />
             </TouchableOpacity>
           ))
         )}
@@ -161,7 +184,6 @@ export default function Home() {
         <FAB userType={"admin"} />
       </View>
 
-      {}
       <Modal
         transparent={true}
         visible={sidebarVisible}
@@ -181,17 +203,17 @@ export default function Home() {
               ]}
             >
               <ScrollView style={styles.scrollView}>
-                {sidebarItems.map((item, index) => (
+                {spaces.map((space, index) => (
                   <View key={index} style={styles.sidebarItem}>
                     <View style={styles.profileCircle} />
                     <TouchableOpacity
                       onPress={() => {
                         toggleSidebar();
-                        router.push('/grupos/_subTelas/espaco/[id]');
+                        router.push(`/grupos/_subTelas/espaco/${space.id}`); 
                       }}
                     >
                       <Text style={styles.itemText}>
-                        {item.nomeEspaco}
+                        {space.nomeEspaco}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -239,7 +261,7 @@ const styles = StyleSheet.create({
     display: "flex",
     alignContent: "flex-start",
     flex: 1,
-    paddingHorizontal: '2%',
+    paddingHorizontal: "2%",
   },
   menu: {
     marginRight: 12,

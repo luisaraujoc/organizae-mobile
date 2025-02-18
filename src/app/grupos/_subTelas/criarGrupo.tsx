@@ -44,8 +44,6 @@ export default function CreateSpaceScreen() {
       Alert.alert("Erro", "Não foi possível carregar a imagem.");
     }
   };
-
-
   const criarGrupo = async () => {
     try {
       if (!isFormValid) {
@@ -57,8 +55,8 @@ export default function CreateSpaceScreen() {
       setShowAlert(false);
   
       const authToken = await AsyncStorage.getItem("access_token");
-      console.log(authToken);
-
+      console.log(authToken)
+  
       if (!authToken) {
         Alert.alert("Erro", "Token de autenticação não encontrado.");
         setLoading(false);
@@ -68,19 +66,18 @@ export default function CreateSpaceScreen() {
       const formData = new FormData();
   
       if (image) {
-        const base64Image = await FileSystem.readAsStringAsync(image, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        formData.append("imagem", base64Image);
-      } else {
-        formData.append("imagem", ""); // Se nenhuma imagem foi selecionada
+        const uri = image;
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        formData.append("foto", blob);  
       }
   
       formData.append("nome", name);
       formData.append("descricao", description);
   
       console.log("Enviando dados do grupo:", formData);
-      const response = await axios.post("/groups", formData, {
+  
+      const response = await axios.post("https://organizae-f7aca8e7f687.herokuapp.com/groups/", formData, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "multipart/form-data",
@@ -88,15 +85,20 @@ export default function CreateSpaceScreen() {
       });
   
       console.log(response.data);
-      router.push("/grupos/group");
-    } catch (error: any) {
-      console.error("Erro ao criar grupo:", error.response ? error.response.data : error.message);
+  
+      if (response.data.status === "sucesso") {
+        Alert.alert("Sucesso", response.data.mensagem);
+        router.push("/grupos/grupo/home");
+      }
+    } catch (error) {
+      console.error("Erro ao criar grupo:", error); 
+      Alert.alert("Erro", "Ocorreu um erro ao criar o grupo.");
     } finally {
       setLoading(false);
     }
   };
   
-
+  
   return (
     <View style={styles.container}>
       <ScrollView

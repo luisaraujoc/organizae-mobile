@@ -40,7 +40,7 @@ export default function Signin() {
             </TouchableOpacity>
           </View>
           <View style={styles.ButtonAreaRight}>
-            <TouchableOpacity style={styles.SignInButton} onPress={async () => await login(email, senha)}>
+            <TouchableOpacity style={styles.SignInButton} onPress={() => login(email, senha)}>
               <Text style={styles.SignInText}>Entrar</Text>
             </TouchableOpacity>
           </View>

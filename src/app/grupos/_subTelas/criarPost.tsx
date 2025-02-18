@@ -3,9 +3,11 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Font from "expo-font";
-import { CaretLeft, CodeBlock, CodeSimple, ListBullets, ListNumbers, TextAUnderline, TextB, TextItalic, TextStrikethrough } from "phosphor-react-native";
+import { CaretLeft, TextB, TextItalic, TextStrikethrough, TextAUnderline, ListBullets, CodeSimple, CodeBlock } from "phosphor-react-native";
+import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';  // Certifique-se de importar o AsyncStorage
 
-const MarkdownEditor = () => {
+const MarkdownEditor = ({ onPublish }: { onPublish: (title: string, spaceId: string, photo: string, content: string) => void }) => {
     const [text, setText] = useState('');
     const [selection, setSelection] = useState({ start: 0, end: 0 });
     const textInputRef = useRef<TextInput>(null);
@@ -111,21 +113,15 @@ const MarkdownEditor = () => {
                         const currentLineIndex = text.substring(0, start).split('\n').length - 1;
                         const currentLine = lines[currentLineIndex] || '';
 
-                        console.log(`Comando enter dado:\n"${text}"`);
-
-                        // Verifica se a linha atual é uma lista numerada
                         if (/^(\d+)\.\s/.test(currentLine)) {
-                            // Se a linha atual estiver vazia, remove-a
                             if (currentLine.trim() === '') {
-                                lines.splice(currentLineIndex, 1); // Remove a linha vazia
+                                lines.splice(currentLineIndex, 1);
                                 setText(lines.join('\n'));
                                 setTimeout(() => {
-                                    // Ajusta a posição do cursor para a linha anterior
-                                    const newCursorPosition = start - 1; // Ajusta para a linha anterior
+                                    const newCursorPosition = start - 1;
                                     textInputRef.current?.setSelection(newCursorPosition, newCursorPosition);
                                 }, 10);
                             } else {
-                                // Se a linha atual não estiver vazia, cria o próximo item
                                 setTimeout(() => applyNumberedList(true), 10);
                             }
                         } else if (currentLine.startsWith('- ')) {
@@ -163,8 +159,10 @@ const MarkdownEditor = () => {
     );
 };
 
-
 export default function Editor() {
+    const [text, setText] = useState('');
+    const [token, setToken] = useState<string | null>(null); // Adicionando estado para o token
+
     const loadFont = async () => {
         await Font.loadAsync({
             MontserratRegular: require("@/assets/fonts/Montserrat-Regular.ttf"),
@@ -175,11 +173,46 @@ export default function Editor() {
 
     useEffect(() => {
         loadFont();
+        const getToken = async () => {
+            const storedToken = await AsyncStorage.getItem("access_token"); // Resgatando o token armazenado
+            setToken(storedToken); // Atualizando o estado com o token
+        };
+        getToken();
     }, []);
 
-    if (!Font.isLoaded) {
-        return null;
-    }
+    const handleSubmitPost = async (title: string, spaceId: string, photo: string, content: string) => {
+        if (!token) {
+            console.error("Token não encontrado");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                "https://organizae-f7aca8e7f687.herokuapp.com/posts/post",
+                {
+                    titulo: title,
+                    conteudo: content,
+                    
+                    espacoId: spaceId,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            console.log("Post enviado com sucesso!", response.data);
+        } catch (error) {
+            console.error("Erro ao enviar o post:", error);
+        }
+    };
+
+    const handlePostPublish = () => {
+        const title = "Título da postagem";  // Aqui você pega o título do post
+        const spaceId = "id_do_espaco";     // Aqui você coloca o id do espaço
+        const photo = "url_da_foto";        // E a URL da foto
+        handleSubmitPost(title, spaceId, photo, text);
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -193,7 +226,7 @@ export default function Editor() {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.postSend} onPress={() => { }}>
+                    <TouchableOpacity style={styles.postSend} onPress={handlePostPublish}>
                         <Text style={styles.postSendText}>Publicar</Text>
                     </TouchableOpacity>
                 </View>
@@ -201,7 +234,7 @@ export default function Editor() {
             <View style={styles.postTitle}>
                 <TextInput style={styles.title} placeholder={'Título da postagem'} />
             </View>
-            <MarkdownEditor />
+            <MarkdownEditor onPublish={handlePostPublish} />
         </SafeAreaView>
     );
 }
@@ -277,7 +310,7 @@ const styles = StyleSheet.create({
     editor: {
         color: 'black',
         flex: 1,
-        textAlignVertical: 'top', // Faz o texto começar do topo
+        textAlignVertical: 'top',
         fontFamily: 'MontserratRegular',
         paddingVertical: 10,
         paddingHorizontal: 10,

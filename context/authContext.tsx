@@ -1,4 +1,3 @@
-// authContext.tsx - Gerencia a autenticação
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -15,7 +14,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, senha: string) => Promise<boolean>;
+  login: (email: string, senha: string) => Promise<void>;
   signup: (nome: string, email: string, senha: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -32,7 +31,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     loadUser();
+    setupAxiosInterceptors();
   }, []);
+
 
   const loadUser = async () => {
     const accessToken = await AsyncStorage.getItem("access_token");
@@ -44,7 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const { data } = await api.get("/me");
         setUser(data);
       } catch (err) {
-        await refreshAccessToken(refreshToken);
+        await refreshAccessToken(refreshToken); 
       }
     }
     setLoading(false);
@@ -52,62 +53,109 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const refreshAccessToken = async (refreshToken: string | null) => {
     try {
-      const { data } = await api.post("/refresh", { refresh: refreshToken });
-      await AsyncStorage.setItem("access_token", data.access);
-      api.defaults.headers.Authorization = `Bearer ${data.access}`;
+      if (!refreshToken) {
+        logout(); 
+        return;
+      }
+  
+   
+      const { data } = await api.get("users/refresh", {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      });
+  
+    
+      await AsyncStorage.setItem("access_token", data.access_token);
+  
+    
+      api.defaults.headers.Authorization = `Bearer ${data.access_token}`;
+  
+      setUser(data.user);
     } catch (error) {
       console.error("Erro ao renovar token:", error);
-      logout();
+      logout(); 
     }
   };
+  
+  const setupAxiosInterceptors = () => {
+    api.interceptors.response.use(
+      response => response, 
+      async (error) => {
+      
+        if (error.response && error.response.status === 401) {
+          const refreshToken = await AsyncStorage.getItem("refresh_token");
+
+          if (refreshToken) {
+            try {
+             
+              const { data } = await api.post("users/refresh", { refresh: refreshToken });
+
+             
+              await AsyncStorage.setItem("access_token", data.access);
+
+             
+              api.defaults.headers.Authorization = `Bearer ${data.access}`;
+
+             
+              error.config.headers['Authorization'] = `Bearer ${data.access}`;
+              return axios(error.config); 
+            } catch (err) {
+              console.error("Erro ao tentar renovar o token", err);
+              logout(); 
+            }
+          }
+        }
+       
+        return Promise.reject(error);
+      }
+    );
+  };
+
+  // Função para login
   const login = async (email: string, senha: string) => {
     try {
       const { data } = await api.post("users/login", { email, senha });
-  
+
       if (data.status !== "sucesso") {
         throw new Error(`Falha no login: ${data.mensagem}`);
       }
-  
+
       const { access_token, refresh_token } = data.data;
-  
+
       if (!access_token || !refresh_token) {
         throw new Error("Tokens não retornados pela API");
       }
-  
-      await AsyncStorage.multiSet([
-        ["access_token", access_token],
-        ["refresh_token", refresh_token],
-      ]);
-  
+
+      await AsyncStorage.multiSet([["access_token", access_token], ["refresh_token", refresh_token]]);
+
       api.defaults.headers.Authorization = `Bearer ${access_token}`;
-  
+
       router.replace("/grupos/group");
-  
+
       return true; 
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       return false; 
     }
   };
-  
 
+  // Função para cadastro
   const signup = async (nome: string, email: string, senha: string) => {
     try {
       const formData = new FormData();
-      // formData.append("imagem", null);
       formData.append("nome", nome);
       formData.append("email", email);
       formData.append("senha", senha);
 
-      await api.post("users/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.post("users/", formData, { headers: { "Content-Type": "multipart/form-data" } });
       router.replace("/auth/signin");
     } catch (error) {
       console.error("Erro ao fazer cadastro:", error);
     }
   };
 
+  // Função para logout
   const logout = async () => {
     await AsyncStorage.removeItem("access_token");
     await AsyncStorage.removeItem("refresh_token");

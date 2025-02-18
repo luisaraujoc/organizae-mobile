@@ -3,59 +3,130 @@ import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert, Scro
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CreateSpaceScreen() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<string | null>(null);
-  const [headerImage, setHeaderImage] = useState<string | null>(null);
   const [isFormValid, setIsFormValid] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [nameCharacterCount, setNameCharacterCount] = useState(0);
   const [descriptionCharacterCount, setDescriptionCharacterCount] = useState(0);
   const router = useRouter();
 
+
   useEffect(() => {
     setIsFormValid(name.trim() !== "" && description.trim() !== "");
   }, [name, description]);
 
-  const pickImage = async (type: 'avatar' | 'header') => {
+ 
+  const getAuthToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      return token;
+    } catch (error) {
+      console.error('Erro ao recuperar o token', error);
+      return null;
+    }
+  };
+
+
+  const getGroupId = async () => {
+    try {
+        const groupId = await AsyncStorage.getItem("groupId");
+        if (groupId !== null) {
+            console.log("groupId recuperado:", groupId);
+            return groupId;
+        } else {
+            console.warn("Nenhum groupId encontrado no AsyncStorage.");
+            return null;
+        }
+    } catch (error) {
+        console.error("Erro ao recuperar groupId:", error);
+        return null;
+    }
+};
+
+
+ 
+  const pickImage = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: type === 'avatar' ? [1, 1] : [4, 3],
+        aspect: [1, 1],
         quality: 1,
       });
 
       if (result.canceled || !result.assets?.length) return;
 
-      if (type === 'avatar') {
-        setImage(result.assets[0].uri);
-      } else if (type === 'header') {
-        setHeaderImage(result.assets[0].uri);
-      }
+      setImage(result.assets[0].uri);
     } catch (error) {
       console.error("Erro ao selecionar imagem:", error);
       Alert.alert("Erro", "Não foi possível carregar a imagem.");
     }
   };
 
-  const handleSave = () => {
+  
+  const handleSave = async () => {
     setShowAlert(true);
 
-    if (!name.trim() || !description.trim()) {
+    if (!isFormValid) {
       return;
     }
-    Alert.alert("Sucesso", "Espaço criado com sucesso!");
+
+    try {
+      const token = await getAuthToken();
+      if (!token) {
+        Alert.alert("Erro", "Token de autenticação não encontrado.");
+        return;
+      }
+
+      const grupoId = await getGroupId();
+
+      if (!grupoId) {
+        Alert.alert("Erro", "Não foi possível recuperar o grupo.");
+        return;
+      }
+      const grupoIdNumber = Number(grupoId);
+      const formData = new FormData();
+      formData.append('nome', name);
+      formData.append('descricao', description);
+      formData.append('grupoId', grupoIdNumber.toString());
+
+      if (image) {
+        const uri = image;
+        const uriParts = uri.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        formData.append('foto', blob, `fotoPerfil.${fileType}`);
+      }
+
+      const response = await axios.post("https://organizae-f7aca8e7f687.herokuapp.com/spaces/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.status === "sucesso") {
+        Alert.alert("Sucesso", response.data.mensagem);
+        router.push('/grupos/grupo/home');
+      } else {
+        Alert.alert("Erro", response.data.mensagem || "Erro ao criar o espaço.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Erro", "Ocorreu um erro ao tentar criar o espaço.");
+    }
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View>
           <Text style={styles.title}>Conte-nos sobre o novo espaço</Text>
           <Text style={styles.subtitle}>
@@ -99,54 +170,34 @@ export default function CreateSpaceScreen() {
           )}
 
           <View style={styles.cardContainer}>
-          <TouchableOpacity style={styles.cardHeader} onPress={() => pickImage('header')}>
-                {headerImage ? (
-                    <Image source={{ uri: headerImage }} style={styles.cardHeaderImage} />
-                ) : (
-                   <View style={styles.placeholderHeader}>
-                       <Ionicons name="image-outline" size={30} color="#777" />
-                       <Text style={styles.placeholderTextHeader}>Adicionar Imagem de Capa</Text>
-                   </View>
-
-                )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.cardAvatarContainer}
-              onPress={() => pickImage('avatar')}
-            >
+            <TouchableOpacity style={styles.cardHeader} onPress={pickImage}>
               {image ? (
-                <Image source={{ uri: image }} style={styles.cardAvatar} />
+                <Image source={{ uri: image }} style={styles.cardHeaderImage} />
               ) : (
-                <Ionicons name="add-circle" size={30} color="#777" />
+                <View style={styles.placeholderHeader}>
+                  <Ionicons name="image-outline" size={30} color="#777" />
+                  <Text style={styles.placeholderTextHeader}>Adicionar Imagem de Capa</Text>
+                </View>
               )}
-              <View style={styles.cardAvatarBorder} />
             </TouchableOpacity>
+
             <Text style={styles.cardTitle}>{name || "Nome do espaço"}</Text>
-            <Text style={styles.cardDescription}>
-              {description || "Descrição"}
-            </Text>
+            <Text style={styles.cardDescription}>{description || "Descrição"}</Text>
           </View>
         </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, styles.cancelButton]}
-          activeOpacity={0.7}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.buttonText}>Cancelar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            isFormValid ? styles.saveButton : styles.disabledButton,
-          ]}
-          onPress={handleSave}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.buttonText}>Salvar</Text>
-        </TouchableOpacity>
-      </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.button, styles.cancelButton]} activeOpacity={0.7} onPress={() => router.back()}>
+            <Text style={styles.buttonText}>Cancelar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, isFormValid ? styles.saveButton : styles.disabledButton]}
+            onPress={handleSave}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.buttonText}>Salvar</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -215,44 +266,14 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-    placeholderHeader: {
+  placeholderHeader: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
-    placeholderTextHeader: {
-        color: '#777',
-        fontSize: 14
-    },
-  cardAvatarContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "absolute",
-    top: 90,
-    overflow: "hidden",
-  },
-    cardAvatarBorder: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '50%',
-        borderTopWidth: 2,
-        borderLeftWidth: 2,
-        borderRightWidth: 2,
-        borderColor: "#ddd",
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        boxSizing: 'border-box'
-    },
-  cardAvatar: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 25,
+  placeholderTextHeader: {
+    color: '#777',
+    fontSize: 14,
   },
   cardTitle: {
     color: "#000",
@@ -260,7 +281,7 @@ const styles = StyleSheet.create({
     marginTop: 45,
     paddingLeft: 20,
     paddingRight: 20,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   cardDescription: {
     color: "#666",
@@ -269,7 +290,7 @@ const styles = StyleSheet.create({
     paddingBottom: "7%",
     paddingLeft: 20,
     paddingRight: 20,
-      textAlign: 'justify'
+    textAlign: 'justify',
   },
   buttonContainer: {
     position: 'absolute',
@@ -300,10 +321,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
-    characterCount: {
-        textAlign: 'right',
-        color: '#666',
-        marginBottom: 10,
-        marginRight: 5
+  characterCount: {
+    textAlign: 'right',
+    color: '#666',
+    marginBottom: 10,
+    marginRight: 5,
   }
 });

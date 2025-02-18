@@ -120,11 +120,6 @@ export default function SearchScreen() {
           <View style={styles.headerLeft}>
             <Text style={styles.headerTitle}>Buscar</Text>
           </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity onPress={() => console.log("User     ")}>
-              <UserCircle size={32} color="#01A1C5" />
-            </TouchableOpacity>
-          </View>
         </View>
 
         <View style={styles.body}>
@@ -148,7 +143,7 @@ export default function SearchScreen() {
           </View>
             {/* area com resultado da pesquisa, ScrollView */}
             <ScrollView style={styles.searchResults}>
-              <Text>Resultados da pesquisa</Text>
+            {/*<Text>Resultados da pesquisa</Text>*/}
             </ScrollView>
         </View>
 
@@ -252,8 +247,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 8,
+    padding: 12,
     backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
   },
   headerLeft: {
     flexDirection: "row",

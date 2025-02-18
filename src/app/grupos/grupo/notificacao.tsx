@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Text,
   View,
@@ -10,6 +10,10 @@ import {
 } from "react-native";
 import { List, Trash } from "phosphor-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  GestureHandlerRootView,
+  Swipeable,
+} from "react-native-gesture-handler";
 
 interface Notification {
   id: number;
@@ -37,14 +41,14 @@ export default function Notificacao() {
         title: "Um novo comunicado em DEPAE",
         description: "Reenvio de documentos para auxílio reabertura de prazos",
         isRead: false,
-        date: getTodayDate(),
+        date: "2025-02-18",
       },
       {
         id: 2,
         title: "Um novo comunicado em PAAE",
         description: "Calendário de Pagamento da Próxima Parcela do Auxílio",
         isRead: false,
-        date: "2025-02-16",
+        date: "2025-02-18",
       },
       {
         id: 3,
@@ -52,7 +56,7 @@ export default function Notificacao() {
         description:
           "Atualização Cadastral Obrigatória para Manutenção do Auxílio",
         isRead: false,
-        date: "2023-11-15",
+        date: "2025-02-18",
       },
       {
         id: 4,
@@ -60,7 +64,7 @@ export default function Notificacao() {
         description:
           "Notificação de Problemas com a Rede Wi-Fi da instituição.",
         isRead: false,
-        date: "2023-11-15",
+        date: "2025-02-18",
       },
       {
         id: 5,
@@ -68,7 +72,7 @@ export default function Notificacao() {
         description:
           "Substituição de Equipamentos nos Laboratórios de Informática",
         isRead: false,
-        date: "2023-11-14",
+        date: "2025-02-18",
       },
     ];
 
@@ -107,6 +111,18 @@ export default function Notificacao() {
     );
   };
 
+  const handleMarkAsRead = (id: number) => {
+    setNotifications(
+      notifications.map((notification) =>
+        notification.id === id ? { ...notification, isRead: true } : notification
+      )
+    );
+  };
+
+  const handleDelete = (id: number) => {
+    setNotifications(notifications.filter((notification) => notification.id !== id));
+  };
+
   const todayNotifications = notifications.filter(
     (notification) => notification.date === getTodayDate()
   );
@@ -117,10 +133,8 @@ export default function Notificacao() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <List size={28} color="#01A1C5" style={styles.menuIcon} />
         <Text style={styles.headerTitle}>Notificações</Text>
       </View>
-
       <View style={styles.buttonContainer}>
         <Pressable
           style={({ pressed }) => [
@@ -144,31 +158,37 @@ export default function Notificacao() {
       </View>
 
       <ScrollView style={styles.notificationsList}>
-        {todayNotifications.length > 0 && (
-          <>
-            <Text style={styles.dateHeader}>Hoje</Text>
-            {todayNotifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onPress={() => handleNotificationPress(notification.id)}
-              />
-            ))}
-          </>
-        )}
+        <GestureHandlerRootView>
+          {todayNotifications.length > 0 && (
+            <>
+              <Text style={styles.dateHeader}>Hoje</Text>
+              {todayNotifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onPress={() => handleNotificationPress(notification.id)}
+                  onMarkAsRead={() => handleMarkAsRead(notification.id)}
+                  onDelete={() => handleDelete(notification.id)}
+                />
+              ))}
+            </>
+          )}
 
-        {pastNotifications.length > 0 && (
-          <>
-            <Text style={styles.dateHeader}>Anteriores</Text>
-            {pastNotifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onPress={() => handleNotificationPress(notification.id)}
-              />
-            ))}
-          </>
-        )}
+          {pastNotifications.length > 0 && (
+            <>
+              <Text style={styles.dateHeader}>Anteriores</Text>
+              {pastNotifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onPress={() => handleNotificationPress(notification.id)}
+                  onMarkAsRead={() => handleMarkAsRead(notification.id)}
+                  onDelete={() => handleDelete(notification.id)}
+                />
+              ))}
+            </>
+          )}
+        </GestureHandlerRootView>
 
         {notifications.length === 0 && (
           <Text style={styles.noNotificationsText}>Nenhuma notificação.</Text>
@@ -181,20 +201,53 @@ export default function Notificacao() {
 const NotificationItem: React.FC<{
   notification: Notification;
   onPress: () => void;
-}> = ({ notification, onPress }) => (
-  <TouchableOpacity style={styles.notificationItem} onPress={onPress}>
-    <View style={styles.notificationIconContainer}>
-      <View style={styles.notificationIcon} />
-      {!notification.isRead && <View style={styles.indicatorDot} />}
-    </View>
-    <View style={styles.notificationText}>
-      <Text style={styles.notificationTitle}>{notification.title}</Text>
-      <Text style={styles.notificationDescription}>
-        {notification.description}
-      </Text>
-    </View>
-  </TouchableOpacity>
-);
+  onMarkAsRead: () => void;
+  onDelete: () => void;
+}> = ({ notification, onPress, onMarkAsRead, onDelete }) => {
+  const ref = useRef(null);
+
+  const renderRightActions = () => (
+    <TouchableOpacity
+      style={[styles.rightActionContainer]} // Make it match parent height
+      onPress={() => {
+        onMarkAsRead();
+        ref.current?.close();
+      }}
+    >
+      <Text style={styles.rightActionText}>Marcar como lida</Text>
+    </TouchableOpacity>
+  );
+
+  const renderLeftActions = () => (
+    <TouchableOpacity
+     style={[styles.leftActionContainer]} // Make it match parent
+      onPress={() => {
+        onDelete();
+        ref.current?.close();
+      }}
+    >
+      <Trash size={20} color="#fff" />
+      <Text style={styles.leftActionText}>Apagar</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <Swipeable ref={ref} renderRightActions={renderRightActions} renderLeftActions={renderLeftActions}>
+      <TouchableOpacity style={styles.notificationItem} onPress={onPress}>
+        <View style={styles.notificationIconContainer}>
+          <View style={styles.notificationIcon} />
+          {!notification.isRead && <View style={styles.indicatorDot} />}
+        </View>
+        <View style={styles.notificationText}>
+          <Text style={styles.notificationTitle}>{notification.title}</Text>
+          <Text style={styles.notificationDescription}>
+            {notification.description}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </Swipeable>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -215,6 +268,7 @@ const styles = StyleSheet.create({
     fontFamily: "MontserratSemiBold",
     fontSize: 24,
     color: "#01A1C5",
+    marginLeft: 8,
   },
   notificationsList: {
     padding: 16,
@@ -227,7 +281,12 @@ const styles = StyleSheet.create({
   },
   notificationItem: {
     flexDirection: "row",
-    marginBottom: 16,
+    backgroundColor: "#fff",
+    padding: 12, // Padding is important here
+    marginBottom: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
   notificationIconContainer: {
     position: "relative",
@@ -286,5 +345,33 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#999",
     marginTop: 20,
+  },
+  rightActionContainer: {
+    backgroundColor: "#01A1C5",
+    justifyContent: "center",
+    alignItems: "flex-end",
+    height: "93.75%",
+    paddingHorizontal: 20,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  leftActionContainer: {
+    backgroundColor: "#ff0000",
+    justifyContent: "center",
+    height: "93.75%",
+    paddingHorizontal: 20,
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+    flexDirection: "row",
+    alignItems: 'center'
+  },
+  rightActionText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  leftActionText: {
+    color: "#fff",
+    fontWeight: "600",
+    marginLeft: 10,
   },
 });
